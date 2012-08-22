@@ -5,9 +5,8 @@ var charsets = new Array(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
 );
 
-var encryptPassword = '123456';
-
 var configs = new Array();
+var downloadedConfigs = '';
 
 var settings = false;
 var mobile = false;
@@ -78,7 +77,57 @@ function init() {
         configs = JSON.parse(localStorage['configs']);
     }
 
-    // TODO: fetch configs from server
+    // Prompt for master password used to generate an encryption password
+    if (!defined(localStorage['encryptionPassword'])) {
+        // Prompt for encryption password
+        var encryptionPassword = prompt('Enter your master password');
+        if (encryptionPassword != null) {
+            localStorage['encryptionPassword'] = generatePassword('on', 30, 'zerobin', '1337', 'saltysnacks', encryptionPassword);
+        }
+    }
+
+    // Prompt for settings URL if not known (only relevant if encryption password is given)
+    if (defined(localStorage['encryptionPassword'])) {
+        var encryptionPassword = localStorage['encryptionPassword'];
+
+        var settingsURL = null;
+        var initialSetup = false;
+        if (defined(localStorage['settingsURL'])) {
+            settingsURL = localStorage['settingsURL'];
+        } else {
+            // Prompt for settings URL
+            var settingsURL = prompt('Enter settings URL for synchronization');
+            if (settingsURL != null) {
+                localStorage['settingsURL'] = settingsURL;
+            }
+            initialSetup = true;
+        }
+
+        if (settingsURL != null) {
+            $.ajax({
+                url: settingsURL,
+                success: function(result) {
+                    if (result.success) {
+                        // Decrypt settings
+                        var decrypted = sjcl.decrypt(encryptionPassword, result.data);
+                        configs = JSON.parse(decrypted);
+                        localStorage['configs'] = decrypted;
+                        downloadedConfigs = decrypted;
+                    } else {
+                        if (!initialSetup) {
+                            alert('Failed to synchronize settings');
+                        }
+                    }
+                },
+                error: function() {
+                    if (!initialSetup) {
+                        alert('Failed to synchronize settings');
+                    }
+                },
+                dataType: 'json'
+            });
+        }
+    }
 
     $('#submit').bind('click', function() {
         var domain = $('#domain').val();
@@ -139,8 +188,31 @@ function init() {
         // Update local storage
         localStorage['configs'] = JSON.stringify(configs);
 
-        // TODO: Encrypt and update server
-        var encrypted = sjcl.encrypt(encryptPassword, localStorage['configs']);
+        // Encrypt and update server if configs have changed
+        if (localStorage['configs'] != downloadedConfigs) {
+            if (defined(localStorage['encryptionPassword']) && defined(localStorage['settingsURL'])) {
+                var encryptionPassword = localStorage['encryptionPassword'];
+                var encrypted = sjcl.encrypt(encryptionPassword, localStorage['configs']);
+
+                var settingsURL = localStorage['settingsURL'];
+                $.ajax({
+                    url: settingsURL,
+                    success: function(data) {
+                        if (!data.success) {
+                            alert('Failed to synchronize settings');
+                        }
+                    },
+                    error: function(a, status) {
+                        alert('Failed to synchronize settings ' + status);
+                    },
+                    dataType: 'json',
+                    type: 'POST',
+                    data: encrypted,
+                    processData: false
+                });
+            }
+        }
+
     });
 
     $('#settingsbtn').bind('click', function() {
