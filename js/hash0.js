@@ -19,6 +19,15 @@ function defined(value) {
     return true;
 }
 
+function updateConfig(domain, config) {
+    for (var i = 0; i < configs.length; i++) {
+        if (configs[i].domain == domain) {
+            configs.splice(i, 1, config);
+            break;
+        }
+    }
+}
+
 function findConfig(domain) {
     for (var i = 0; i < configs.length; i++) {
         if (configs[i].domain == domain) {
@@ -69,6 +78,7 @@ function init() {
         var master = $('#master').val();
         var length = $('#length').val();
         var symbol = $('#symbol').val();
+        var newpassword = $('#newpassword').val();
 
         if (domain == '') {
             domain = param;
@@ -78,9 +88,8 @@ function init() {
         var salt = ''+CryptoJS.lib.WordArray.random(128/8);
         var number = 0;
         var config = findConfig(domain);
-        if (config == null) {
-            // If this is a new site, then create config for it
-            config = {
+        if (config == null || newpassword == 'on') {
+            newconfig = {
                 'domain': domain,
                 'param': param,
                 'salt': salt,
@@ -88,8 +97,16 @@ function init() {
                 'symbol': symbol,
                 'length': length,
             };
-            configs.push(config);
+
+            if (config != null) {
+                // Allow creation of new password for a particular site
+                number = newconfig.number = config.number + 1;
+                updateConfig(domain, newconfig);
+            } else {
+                configs.push(newconfig);
+            }
         } else {
+            // Use cached config values
             if (defined(config.salt)) {
                 salt = config.salt;
             }
