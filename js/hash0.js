@@ -23,6 +23,57 @@ function findConfig(domain) {
     return null;
 }
 
+function generatePassword(symbol, length, param, number, salt, master) {
+    // Generate HMAC-SHA512 as the basis for generating password
+    var hmac = ''+CryptoJS.HmacSHA512(param+number, salt+master);
+
+    var part1 = hmac.substr(0, length);
+    var part2 = hmac.substr(hmac.length - length, length);
+
+    var i = 0;
+    var part3 = $.map(part1, function(c) {
+        var charCode = c.charCodeAt(0);
+        if (charCode % 2 == 0) {
+            charCode = charCode + part2.charCodeAt(i)
+        }
+
+        if (charCode >= 128 && symbol == "on") {
+            if (charCode % 2 == 0) {
+                charCode = charCode % 15 + 33;
+            }
+            else {
+                charCode = charCode % 6 + 91;
+            }
+        }
+        else {
+            charCode = charCode % 128 + 33;
+            if (
+                charCode >= 48 && charCode <= 57 &&
+                charCode >= 65 && charCode <= 90 &&
+                charCode >= 97 && charCode <= 122
+            ) {
+            }
+            else if (charCode % 3 == 0) {
+                charCode = charCode % 26 + 97;
+            }
+            else if (charCode % 3 == 1) {
+                charCode = charCode % 10 + 48;
+            }
+            else {
+                charCode = charCode % 26 + 65;
+            }
+        }
+
+        var newChar = String.fromCharCode(charCode);
+        i++;
+        return newChar;
+    });
+
+    var password = part3.join('');
+
+    return password;
+}
+
 function init() {
 
     // Load configs from local storage if available
@@ -73,52 +124,7 @@ function init() {
             }
         }
 
-        // Generate HMAC-SHA512 as the basis for generating password
-        var hmac = ''+CryptoJS.HmacSHA512(param+number, salt+master);
-
-        var part1 = hmac.substr(0, length);
-        var part2 = hmac.substr(hmac.length - length, length);
-
-        var i = 0;
-        var part3 = $.map(part1, function(c) {
-            var charCode = c.charCodeAt(0);
-            if (charCode % 2 == 0) {
-                charCode = charCode + part2.charCodeAt(i)
-            }
-
-            if (charCode >= 128 && symbol == "on") {
-                if (charCode % 2 == 0) {
-                    charCode = charCode % 15 + 33;
-                }
-                else {
-                    charCode = charCode % 6 + 91;
-                }
-            }
-            else {
-                charCode = charCode % 128 + 33;
-                if (
-                    charCode >= 48 && charCode <= 57 &&
-                    charCode >= 65 && charCode <= 90 &&
-                    charCode >= 97 && charCode <= 122
-                ) {
-                }
-                else if (charCode % 3 == 0) {
-                    charCode = charCode % 26 + 97;
-                }
-                else if (charCode % 3 == 1) {
-                    charCode = charCode % 10 + 48;
-                }
-                else {
-                    charCode = charCode % 26 + 65;
-                }
-            }
-
-            var newChar = String.fromCharCode(charCode);
-            i++;
-            return newChar;
-        });
-
-        var password = part3.join('');
+        var password = generatePassword(symbol, length, param, number, salt, master);
 
         $('#output').val(password);
         $('#master').val('');
