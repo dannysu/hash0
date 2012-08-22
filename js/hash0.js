@@ -65,6 +65,14 @@ function generatePassword(symbol, length, param, number, salt, master) {
 
 function init() {
 
+    // Add param input box either in settings area or on front page.
+    // On desktop, the param box can be hidden to simplify the UI.
+    var paramLocation = "#desktop_param";
+    if (mobile) {
+        paramLocation = "#mobile_param";
+    }
+    $(paramLocation).append('<input type="text" id="param" name="param" value="">').trigger("create");
+
     // Load configs from local storage if available
     if (defined(localStorage['configs'])) {
         configs = JSON.parse(localStorage['configs']);

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Password</title> 
+    <title>hash0</title> 
     <link rel="stylesheet" href="css/metro/jquery.mobile.metro.theme.css" />
     <link rel="stylesheet" href="css/toggle-button.css" />
     <link rel="stylesheet" href="css/hash0.css" />
@@ -29,15 +29,14 @@
 
     <div data-role="content" data-theme="b">
         <div data-role="fieldcontain">
-            <label for="param">Parameter:</label>
-            <input type="text" name="param" id="param" value=""/>
-            <input type="hidden" name="domain" id="domain" value=""/>
-        </div>
-        <div data-role="fieldcontain">
             <label for="master">Master password:</label>
             <input type="password" name="master" id="master" value=""/>
+            <input type="hidden" name="domain" id="domain" value=""/>
         </div>
 
+        <div id="mobile_param" data-role="fieldcontain">
+            <label for="param">Parameter:</label>
+        </div>
 
         <br>
         <button id="submit" data-theme="b">Submit</button>
@@ -48,6 +47,10 @@
         </fieldset>
 
         <div id="settings" data-role="collapsible">
+            <div id="desktop_param" data-role="fieldcontain">
+                <label for="param">Parameter:</label>
+            </div>
+
             <div data-role="fieldcontain">
                 <label for="length" class="select">Length:</label>
                 <select name="length" id="length">
