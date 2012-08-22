@@ -1,5 +1,10 @@
 (function() {
 
+var charsets = new Array(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
+);
+
 var encryptPassword = '123456';
 
 var configs = new Array();
@@ -24,52 +29,27 @@ function findConfig(domain) {
 }
 
 function generatePassword(symbol, length, param, number, salt, master) {
+
     // Generate HMAC-SHA512 as the basis for generating password
-    var hmac = ''+CryptoJS.HmacSHA512(param+number, salt+master);
+    var hmac = CryptoJS.HmacSHA512(param+number, salt+master);
 
-    var part1 = hmac.substr(0, length);
-    var part2 = hmac.substr(hmac.length - length, length);
+    // Apply 100 rounds of HMAC-SHA512
+    for (var i = 0; i < 100; i++) {
+        hmac = CryptoJS.HmacSHA512(''+hmac, salt);
+    }
 
-    var i = 0;
-    var part3 = $.map(part1, function(c) {
-        var charCode = c.charCodeAt(0);
-        if (charCode % 2 == 0) {
-            charCode = charCode + part2.charCodeAt(i)
-        }
+    var charset = charsets[0];
+    if (symbol == 'on') {
+        charset = charsets[1];
+    }
 
-        if (charCode >= 128 && symbol == "on") {
-            if (charCode % 2 == 0) {
-                charCode = charCode % 15 + 33;
-            }
-            else {
-                charCode = charCode % 6 + 91;
-            }
-        }
-        else {
-            charCode = charCode % 128 + 33;
-            if (
-                charCode >= 48 && charCode <= 57 &&
-                charCode >= 65 && charCode <= 90 &&
-                charCode >= 97 && charCode <= 122
-            ) {
-            }
-            else if (charCode % 3 == 0) {
-                charCode = charCode % 26 + 97;
-            }
-            else if (charCode % 3 == 1) {
-                charCode = charCode % 10 + 48;
-            }
-            else {
-                charCode = charCode % 26 + 65;
-            }
-        }
+    var password = PasswordMaker_HashUtils.rstr2any(
+        PasswordMaker_HashUtils.binb2rstr(hmac.words),
+        charset
+    );
 
-        var newChar = String.fromCharCode(charCode);
-        i++;
-        return newChar;
-    });
-
-    var password = part3.join('');
+    // truncate password to desired length
+    password = password.substring(0, length);
 
     return password;
 }
