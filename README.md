@@ -1,4 +1,4 @@
-[hash0.dannysu.com](hash0.dannysu.com)
+[hash0.dannysu.com](http://hash0.dannysu.com)
 
 # Motivation
 I'm interested in using password generators such as hashapass, pwdhash, and
