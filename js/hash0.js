@@ -18,18 +18,18 @@ function defined(value) {
     return true;
 }
 
-function updateConfig(domain, config) {
+function updateConfig(param, config) {
     for (var i = 0; i < configs.length; i++) {
-        if (configs[i].domain == domain) {
+        if (configs[i].param == param) {
             configs.splice(i, 1, config);
             break;
         }
     }
 }
 
-function findConfig(domain) {
+function findConfig(param) {
     for (var i = 0; i < configs.length; i++) {
-        if (configs[i].domain == domain) {
+        if (configs[i].param == param) {
             return configs[i];
         }
     }
@@ -70,7 +70,7 @@ function init() {
     if (mobile) {
         paramLocation = "#mobile_param";
     }
-    $(paramLocation).append('<input type="text" id="param" name="param" value="">').trigger("create");
+    $(paramLocation).append('<label for="param">Parameter:</label><input type="text" id="param" name="param" value="">').trigger("create");
 
     // Load configs from local storage if available
     if (defined(localStorage['configs'])) {
@@ -130,24 +130,18 @@ function init() {
     }
 
     $('#submit').bind('click', function() {
-        var domain = $('#domain').val();
         var param = $('#param').val();
         var master = $('#master').val();
         var length = $('#length').val();
         var symbol = $('#symbol').val();
         var newpassword = $('#newpassword').val();
 
-        if (domain == '') {
-            domain = param;
-        }
-
         // Generate different salt per site to make master password more secure
         var salt = ''+CryptoJS.lib.WordArray.random(128/8);
         var number = 0;
-        var config = findConfig(domain);
+        var config = findConfig(param);
         if (config == null || newpassword == 'on') {
             newconfig = {
-                'domain': domain,
                 'param': param,
                 'salt': salt,
                 'number': number,
@@ -158,7 +152,7 @@ function init() {
             if (config != null) {
                 // Allow creation of new password for a particular site
                 number = newconfig.number = config.number + 1;
-                updateConfig(domain, newconfig);
+                updateConfig(param, newconfig);
             } else {
                 configs.push(newconfig);
             }
@@ -227,21 +221,7 @@ function init() {
     if (defined(chrome) && defined(chrome.tabs)) {
         chrome.tabs.getSelected(null, function(tab) {
             var domain = tab.url.match(/:\/\/(.[^\/]+)/)[1];
-            $('#domain').val(domain);
-
-            // Use stored param if there is one.
-            // This allows mapping of multiple domains to the same param.
-            // E.g. amazon.com and amazon.ca can both use the same param.
-            var config = findConfig(domain);
-            if (config != null) {
-                if (defined(config.param)) {
-                    $('#param').val(config.param);
-                } else {
-                    $('#param').val(domain);
-                }
-            } else {
-                $('#param').val(domain);
-            }
+            $('#param').val(domain);
         });
     }
 }
