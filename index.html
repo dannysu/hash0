@@ -21,7 +21,7 @@
 
 <body style="min-width:480px;min-height:800px;">
 
-<div data-role="page" class="type-interior" data-theme="b">
+<div data-role="page" class="type-interior" data-theme="b" id="generator">
 
     <div data-role="header" data-theme="b">
         <h1>Password</h1>
@@ -93,6 +93,8 @@
                     <option value="on">On</option>
                 </select>
             </div>
+
+            <a href="#setup" data-role="button" data-inline="true" data-theme="b">Setup</a>
         </div>
 
         <div id="result" data-role="collapsible">
@@ -104,6 +106,24 @@
     </div><!-- /content -->
 
 </div><!-- /page -->
+
+<div data-role="page" class="type-interior" data-theme="b" id="setup">
+    <div data-role="header" data-theme="b">
+        <h1>setup</h1>
+    </div>
+    <div data-role="content" data-theme="b">
+        <div data-role="fieldcontain">
+            <label for="master">Master password:</label>
+            <input type="password" name="setup_master" id="setup_master" value=""/>
+        </div>
+        <div data-role="fieldcontain">
+            <label for="url">Storage URL:</label>
+            <input type="text" name="setup_url" id="setup_url" value=""/>
+        </div>
+        <a id="setup_cancel" data-role="button" data-inline="true" data-theme="b">Cancel</a>
+        <a id="setup_save" data-role="button" data-inline="true" data-theme="b">Save</a>
+    </div>
+</div>
 
 </body>
 </html>
