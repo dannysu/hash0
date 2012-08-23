@@ -69,6 +69,7 @@ function downloadSettings() {
         return;
     }
 
+    var encryptionPassword = localStorage['encryptionPassword'];
     var settingsURL = localStorage['settingsURL'];
     $.ajax({
         url: settingsURL,
