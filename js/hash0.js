@@ -232,8 +232,8 @@ function init() {
         $.mobile.changePage('#generator');
     });
 
-    if (defined(chrome) && defined(chrome.tabs)) {
-        chrome.tabs.getSelected(null, function(tab) {
+    if (defined(window.chrome) && defined(window.chrome.tabs)) {
+        window.chrome.tabs.getSelected(null, function(tab) {
             var domain = tab.url.match(/:\/\/(.[^\/]+)/)[1];
             $('#param').val(domain);
         });
