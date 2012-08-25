@@ -171,6 +171,7 @@ function init() {
     }
 
     $('#submit').bind('click', function() {
+        var notes = $('#notes').val();
         var param = $('#param').val();
         var master = $('#master').val();
         var length = $('#length').val();
@@ -194,6 +195,7 @@ function init() {
                 'number': number,
                 'symbol': symbol,
                 'length': length,
+                'notes': notes,
             };
 
             if (config != null) {
@@ -217,6 +219,8 @@ function init() {
             if (defined(config.length)) {
                 length = config.length;
             }
+
+            config.notes = notes;
         }
 
         var password = generatePassword(symbol, length, param, number, salt, master);
@@ -282,6 +286,17 @@ function init() {
         window.chrome.tabs.getSelected(null, function(tab) {
             var domain = tab.url.match(/:\/\/(.[^\/]+)/)[1];
             $('#param').val(domain);
+
+            var key = domain;
+            var mapping = findMapping(key);
+            if (mapping != null) {
+                key = mapping.to;
+            }
+
+            var config = findConfig(key);
+            if (config != null && defined(config.notes)) {
+                $('#notes').val(config.notes);
+            }
         });
     }
 }
