@@ -75,7 +75,8 @@ function generatePassword(symbol, length, param, number, salt, master) {
 
 function downloadSettings() {
     if (!defined(localStorage['encryptionPassword']) ||
-        !defined(localStorage['settingsURL'])) {
+        !defined(localStorage['settingsURL']) ||
+        localStorage['settingsURL'] == '') {
         // No-op if these are not defined
         return;
     }
@@ -109,7 +110,8 @@ function downloadSettings() {
 
 function uploadSettings(force) {
     if (!defined(localStorage['encryptionPassword']) ||
-        !defined(localStorage['settingsURL'])) {
+        !defined(localStorage['settingsURL']) ||
+        localStorage['settingsURL'] == '') {
         // No-op if these are not defined
         return;
     }
@@ -182,45 +184,52 @@ function init() {
         var salt = ''+CryptoJS.lib.WordArray.random(128/8);
         var number = 0;
 
-        var mapping = findMapping(param);
-        if (mapping != null) {
-            param = mapping.to;
-        }
-
-        var config = findConfig(param);
-        if (config == null || newpassword == 'on') {
-            var newconfig = {
-                'param': param,
-                'salt': salt,
-                'number': number,
-                'symbol': symbol,
-                'length': length,
-                'notes': notes,
-            };
-
-            if (config != null) {
-                // Allow creation of new password for a particular site
-                number = newconfig.number = config.number + 1;
-                updateConfig(param, newconfig);
-            } else {
-                configs.push(newconfig);
-            }
+        // Don't use unique salt per site if there is nowhere to store it
+        if (!defined(localStorage['encryptionPassword']) ||
+            !defined(localStorage['settingsURL']) ||
+            localStorage['settingsURL'] == '') {
+            salt = '';
         } else {
-            // Use cached config values
-            if (defined(config.salt)) {
-                salt = config.salt;
-            }
-            if (defined(config.number)) {
-                number = config.number;
-            }
-            if (defined(config.symbol)) {
-                symbol = config.symbol;
-            }
-            if (defined(config.length)) {
-                length = config.length;
+            var mapping = findMapping(param);
+            if (mapping != null) {
+                param = mapping.to;
             }
 
-            config.notes = notes;
+            var config = findConfig(param);
+            if (config == null || newpassword == 'on') {
+                var newconfig = {
+                    'param': param,
+                    'salt': salt,
+                    'number': number,
+                    'symbol': symbol,
+                    'length': length,
+                    'notes': notes,
+                };
+
+                if (config != null) {
+                    // Allow creation of new password for a particular site
+                    number = newconfig.number = config.number + 1;
+                    updateConfig(param, newconfig);
+                } else {
+                    configs.push(newconfig);
+                }
+            } else {
+                // Use cached config values
+                if (defined(config.salt)) {
+                    salt = config.salt;
+                }
+                if (defined(config.number)) {
+                    number = config.number;
+                }
+                if (defined(config.symbol)) {
+                    symbol = config.symbol;
+                }
+                if (defined(config.length)) {
+                    length = config.length;
+                }
+
+                config.notes = notes;
+            }
         }
 
         var password = generatePassword(symbol, length, param, number, salt, master);
@@ -231,7 +240,9 @@ function init() {
         $('#settings').trigger('collapse');
 
         // Update local storage
-        localStorage['configs'] = JSON.stringify(configs);
+        if (salt != '') {
+            localStorage['configs'] = JSON.stringify(configs);
+        }
 
         // Encrypt and update server if configs have changed
         uploadSettings(false);
