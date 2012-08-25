@@ -5,6 +5,8 @@ var charsets = new Array(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
 );
 
+var mappings = new Array();
+
 var configs = new Array();
 var downloadedConfigs = '';
 
@@ -31,6 +33,15 @@ function findConfig(param) {
     for (var i = 0; i < configs.length; i++) {
         if (configs[i].param == param) {
             return configs[i];
+        }
+    }
+    return null;
+}
+
+function findMapping(from) {
+    for (var i = 0; i < mappings.length; i++) {
+        if (mappings[i].from == from) {
+            return mappings[i];
         }
     }
     return null;
@@ -77,9 +88,14 @@ function downloadSettings() {
             if (result.success) {
                 // Decrypt settings
                 var decrypted = sjcl.decrypt(encryptionPassword, result.data);
-                configs = JSON.parse(decrypted);
-                localStorage['configs'] = decrypted;
+                var json = JSON.parse(decrypted);
+
+                configs = json.configs;
+                localStorage['configs'] = JSON.stringify(json.configs);
                 downloadedConfigs = decrypted;
+
+                mappings = json.mappings;
+                localStorage['mappings'] = JSON.stringify(json.mappings);
             } else {
                 alert('Failed to synchronize settings');
             }
@@ -91,26 +107,28 @@ function downloadSettings() {
     });
 }
 
-function uploadSettings() {
+function uploadSettings(force) {
     if (!defined(localStorage['encryptionPassword']) ||
         !defined(localStorage['settingsURL'])) {
         // No-op if these are not defined
         return;
     }
 
-    if (localStorage['configs'] == downloadedConfigs) {
+    if (!force && localStorage['configs'] == downloadedConfigs) {
         // No-op if configs have not changed
         return;
     }
 
+    var data = '{"mappings":'+localStorage['mappings']+',"configs":'+localStorage['configs']+'}';
+
     var encryptionPassword = localStorage['encryptionPassword'];
-    var encrypted = sjcl.encrypt(encryptionPassword, localStorage['configs']);
+    var encrypted = sjcl.encrypt(encryptionPassword, data);
 
     var settingsURL = localStorage['settingsURL'];
     $.ajax({
         url: settingsURL,
-        success: function(data) {
-            if (!data.success) {
+        success: function(result) {
+            if (!result.success) {
                 alert('Failed to synchronize settings');
             }
         },
@@ -138,6 +156,10 @@ function init() {
     if (defined(localStorage['configs'])) {
         configs = JSON.parse(localStorage['configs']);
     }
+    // Load mappings from local storage if available
+    if (defined(localStorage['mappings'])) {
+        mappings = JSON.parse(localStorage['mappings']);
+    }
 
     // If master password for encryption or settings URL are not configured yet,
     // go configure them first
@@ -158,9 +180,15 @@ function init() {
         // Generate different salt per site to make master password more secure
         var salt = ''+CryptoJS.lib.WordArray.random(128/8);
         var number = 0;
+
+        var mapping = findMapping(param);
+        if (mapping != null) {
+            param = mapping.to;
+        }
+
         var config = findConfig(param);
         if (config == null || newpassword == 'on') {
-            newconfig = {
+            var newconfig = {
                 'param': param,
                 'salt': salt,
                 'number': number,
@@ -202,7 +230,7 @@ function init() {
         localStorage['configs'] = JSON.stringify(configs);
 
         // Encrypt and update server if configs have changed
-        uploadSettings();
+        uploadSettings(false);
 
     });
 
@@ -215,7 +243,7 @@ function init() {
         settings = !settings;
     });
 
-    $('#setup_cancel').bind('click', function() {
+    $('#setup_cancel, #map_cancel').bind('click', function() {
         $.mobile.changePage('#generator');
     });
 
@@ -228,6 +256,24 @@ function init() {
         localStorage['settingsURL'] = url;
 
         downloadSettings();
+
+        $.mobile.changePage('#generator');
+    });
+
+    $('#map_save').bind('click', function() {
+
+        var from = $('#map_from').val();
+        var to = $('#map_to').val();
+
+        var newmapping = {
+            'from': from,
+            'to': to,
+        };
+
+        mappings.push(newmapping);
+        localStorage['mappings'] = JSON.stringify(mappings);
+
+        uploadSettings(true);
 
         $.mobile.changePage('#generator');
     });
