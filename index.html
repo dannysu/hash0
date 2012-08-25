@@ -95,6 +95,7 @@
             </div>
 
             <a href="#setup" data-role="button" data-inline="true" data-theme="b">Setup</a>
+            <a href="#mapping" data-role="button" data-inline="true" data-theme="b">Mapping</a>
         </div>
 
         <div id="result" data-role="collapsible">
@@ -113,15 +114,33 @@
     </div>
     <div data-role="content" data-theme="b">
         <div data-role="fieldcontain">
-            <label for="master">Master password:</label>
+            <label for="setup_master">Master password:</label>
             <input type="password" name="setup_master" id="setup_master" value=""/>
         </div>
         <div data-role="fieldcontain">
-            <label for="url">Storage URL:</label>
+            <label for="setup_url">Storage URL:</label>
             <input type="text" name="setup_url" id="setup_url" value=""/>
         </div>
         <a id="setup_cancel" data-role="button" data-inline="true" data-theme="b">Cancel</a>
         <a id="setup_save" data-role="button" data-inline="true" data-theme="b">Save</a>
+    </div>
+</div>
+
+<div data-role="page" class="type-interior" data-theme="b" id="mapping">
+    <div data-role="header" data-theme="b">
+        <h1>add mapping</h1>
+    </div>
+    <div data-role="content" data-theme="b">
+        <div data-role="fieldcontain">
+            <label for="map_from">From:</label>
+            <input type="text" name="map_from" id="map_from" value=""/>
+        </div>
+        <div data-role="fieldcontain">
+            <label for="url">To:</label>
+            <input type="text" name="map_to" id="map_to" value=""/>
+        </div>
+        <a id="map_cancel" data-role="button" data-inline="true" data-theme="b">Cancel</a>
+        <a id="map_save" data-role="button" data-inline="true" data-theme="b">Save</a>
     </div>
 </div>
 
