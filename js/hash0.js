@@ -49,13 +49,8 @@ function findMapping(from) {
 
 function generatePassword(symbol, length, param, number, salt, master) {
 
-    // Generate HMAC-SHA512 as the basis for generating password
-    var hmac = CryptoJS.HmacSHA512(param+number, salt+master);
-
-    // Apply 100 rounds of HMAC-SHA512
-    for (var i = 0; i < 100; i++) {
-        hmac = CryptoJS.HmacSHA512(''+hmac, salt);
-    }
+    var key = ''+CryptoJS.PBKDF2(master, salt, { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 100 });
+    var hmac = CryptoJS.HmacSHA512(param+number, key);
 
     var charset = charsets[0];
     if (symbol == 'on') {
