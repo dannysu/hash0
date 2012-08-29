@@ -300,9 +300,14 @@ function init() {
             }
 
             var config = findConfig(key);
-            if (config != null && defined(config.notes)) {
-                $('#notes').val(config.notes);
+            if (config != null) {
+                if (defined(config.notes)) {
+                    $('#notes').val(config.notes);
+                }
+            } else {
+                $('#submit').parent().find('span[class=ui-btn-text]').html('create');
             }
+
         });
     }
 }
