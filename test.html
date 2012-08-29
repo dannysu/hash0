@@ -15,6 +15,10 @@
     <script src="js/hash0.js"></script>
 </head>
 <body>
-    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 100 }));">test</button>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 100 }));">100 rounds</button>
+	<br><br>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 500 }));">500 rounds</button>
+	<br><br>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 1000 }));">1000 rounds</button>
 </body>
 </html>
