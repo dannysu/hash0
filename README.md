@@ -8,11 +8,12 @@ LinkedIn passwords got out, I had to change the hash param from "linkedin.com"
 to "linkedin.com2". I don't want to remember different config per site.
 
 # Details
-Hash0 is based off of [PasswordMaker.org][1] classes, but uses HMAC-SHA512 from
-[CryptoJS][2] instead to better protect the master password. Also, hash0 uses a
-different salt for each site to further protect the master password. The salt
-and different site configuration are stored at a place of user's choosing so
-that the settings can be synchronized to all clients.
+Hash0 makes use of [PasswordMaker.org][1] classes, but uses PBKDF2 with 100
+rounds of SHA512 from [CryptoJS][2] instead to better protect the master
+password. Also, hash0 uses a different salt for each site to further protect
+the master password. The salt and different site configuration are stored at a
+place of user's choosing so that the settings can be synchronized to all
+clients.
 
 Pros:
 
