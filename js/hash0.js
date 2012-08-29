@@ -234,6 +234,21 @@ function init() {
         $('#result').trigger('expand');
         $('#settings').trigger('collapse');
 
+        if (defined(window.chrome) && defined(window.chrome.tabs)) {
+		    // Convenience function to insert password directly into password field if it's selected
+			window.chrome.tabs.executeScript({
+                code: "\
+				    var inputs = document.getElementsByTagName('input');\
+					var password = '"+password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"')+"';\
+					for (var i = 0; i < inputs.length; i++) {\
+					    if (inputs[i].type.toLowerCase() == 'password') {\
+							inputs[i].value = password;\
+						}\
+					}\
+				"
+			});
+		}
+
         // Update local storage
         if (salt != '') {
             localStorage['configs'] = JSON.stringify(configs);
