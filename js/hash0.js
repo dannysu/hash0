@@ -280,7 +280,23 @@ function init() {
         var url = $('#setup_url').val();
         localStorage['settingsURL'] = url;
 
-        downloadSettings();
+        // Check if there is existing settings
+        if (defined(localStorage['settingsURL']) &&
+            defined(localStorage['encryptionPassword'])) {
+
+            // If there is, then ask whether to migrate data
+            if (confirm('Migrate existing data to new location?')) {
+                // Migrating data is just uploading what's currently there to
+                // another location and with potentially new encryption password
+                uploadSettings(true);
+            }
+            else {
+                downloadSettings();
+            }
+        }
+        else {
+            downloadSettings();
+        }
 
         $.mobile.changePage('#generator');
     });
