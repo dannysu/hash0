@@ -87,8 +87,8 @@ function downloadSettings() {
                 var json = JSON.parse(decrypted);
 
                 configs = json.configs;
-                localStorage['configs'] = JSON.stringify(json.configs);
-                downloadedConfigs = decrypted;
+                downloadedConfigs = JSON.stringify(json.configs);
+                localStorage['configs'] = downloadedConfigs;
 
                 mappings = json.mappings;
                 localStorage['mappings'] = JSON.stringify(json.mappings);
