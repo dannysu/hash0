@@ -49,13 +49,8 @@ function findMapping(from) {
 
 function generatePassword(symbol, length, param, number, salt, master) {
 
-    // Generate HMAC-SHA512 as the basis for generating password
-    var hmac = CryptoJS.HmacSHA512(param+number, salt+master);
-
-    // Apply 100 rounds of HMAC-SHA512
-    for (var i = 0; i < 100; i++) {
-        hmac = CryptoJS.HmacSHA512(''+hmac, salt);
-    }
+    var key = ''+CryptoJS.PBKDF2(master, salt, { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 100 });
+    var hmac = CryptoJS.HmacSHA512(param+number, key);
 
     var charset = charsets[0];
     if (symbol == 'on') {
@@ -239,6 +234,21 @@ function init() {
         $('#result').trigger('expand');
         $('#settings').trigger('collapse');
 
+        if (defined(window.chrome) && defined(window.chrome.tabs)) {
+		    // Convenience function to insert password directly into password field if it's selected
+			window.chrome.tabs.executeScript({
+                code: "\
+				    var inputs = document.getElementsByTagName('input');\
+					var password = '"+password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"')+"';\
+					for (var i = 0; i < inputs.length; i++) {\
+					    if (inputs[i].type.toLowerCase() == 'password') {\
+							inputs[i].value = password;\
+						}\
+					}\
+				"
+			});
+		}
+
         // Update local storage
         if (salt != '') {
             localStorage['configs'] = JSON.stringify(configs);
@@ -270,7 +280,23 @@ function init() {
         var url = $('#setup_url').val();
         localStorage['settingsURL'] = url;
 
-        downloadSettings();
+        // Check if there is existing settings
+        if (defined(localStorage['settingsURL']) &&
+            defined(localStorage['encryptionPassword'])) {
+
+            // If there is, then ask whether to migrate data
+            if (confirm('Migrate existing data to new location?')) {
+                // Migrating data is just uploading what's currently there to
+                // another location and with potentially new encryption password
+                uploadSettings(true);
+            }
+            else {
+                downloadSettings();
+            }
+        }
+        else {
+            downloadSettings();
+        }
 
         $.mobile.changePage('#generator');
     });
@@ -305,9 +331,14 @@ function init() {
             }
 
             var config = findConfig(key);
-            if (config != null && defined(config.notes)) {
-                $('#notes').val(config.notes);
+            if (config != null) {
+                if (defined(config.notes)) {
+                    $('#notes').val(config.notes);
+                }
+            } else {
+                $('#submit').parent().find('span[class=ui-btn-text]').html('create');
             }
+
         });
     }
 }

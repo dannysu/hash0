@@ -1,0 +1,24 @@
+<!DOCTYPE html> 
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>hash0 test</title> 
+    <script src="js/jquery.js"></script>
+    <script src="js/passwordmaker/hashutils.js"></script>
+    <script src="js/cryptojs-3.0.2/rollups/hmac-sha512.js"></script>
+    <script src="js/cryptojs-3.0.2/rollups/aes.js"></script>
+    <script src="js/cryptojs-3.0.2/rollups/pbkdf2.js"></script>
+    <script src="js/cryptojs-3.0.2/rollups/sha512.js"></script>
+    <script src="js/sjcl/sjcl.js"></script>
+    <script src="js/json2.js"></script>
+    <script src="js/hash0.js"></script>
+</head>
+<body>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 100 }));">100 rounds</button>
+	<br><br>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 500 }));">500 rounds</button>
+	<br><br>
+    <button onclick="alert(''+CryptoJS.PBKDF2('master', 'salt', { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 1000 }));">1000 rounds</button>
+</body>
+</html>
