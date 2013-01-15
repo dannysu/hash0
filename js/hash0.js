@@ -29,9 +29,13 @@ function updateConfig(param, config) {
     }
 }
 
-function findConfig(param) {
+function findConfig(param, partial_match) {
     for (var i = 0; i < configs.length; i++) {
         if (configs[i].param == param) {
+            return configs[i];
+        }
+
+        if (partial_match && configs[i].param.indexOf(param) >= 0) {
             return configs[i];
         }
     }
@@ -317,6 +321,13 @@ function init() {
         uploadSettings(true);
 
         $.mobile.changePage('#generator');
+    });
+
+    $('#param').change(function(e) {
+        var config = findConfig(this.value, true);
+        if (config) {
+            alert("Found config for '" + config.param + "'");
+        }
     });
 
     if (defined(window.chrome) && defined(window.chrome.tabs)) {
