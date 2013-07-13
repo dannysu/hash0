@@ -354,7 +354,8 @@ function init() {
     }
 }
 
-if (navigator.userAgent.match(/Windows Phone/i)) {
+if (navigator.userAgent.match(/Windows Phone/i) ||
+    navigator.userAgent.match(/Android/i)) {
     mobile = true;
     $(document).bind('pageinit', init);
 } else {
