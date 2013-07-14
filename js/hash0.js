@@ -178,6 +178,7 @@ function initWithUrl(url) {
         if (defined(config.notes)) {
             $('#notes').val(config.notes);
         }
+        $('#submit').parent().find('span[class=ui-btn-text]').html('submit');
     } else {
         $('#submit').parent().find('span[class=ui-btn-text]').html('create');
     }
@@ -396,10 +397,21 @@ if (navigator.userAgent.match(/Windows Phone/i) ||
 
 if(defined(window.addon)) {
     // Firefox specific code
-    $(document.body).css('min-height', '400px');
+    $(document.body).css('min-height', '335px');
+    $(document.body).css('overflow-y', 'hidden');
 
     window.addon.port.on('show', function(url) {
         initWithUrl(url);
+    });
+
+    window.addon.port.on('hide', function(url) {
+        $('#result').trigger('collapse');
+
+        if ($('#settingsbtn').hasClass('ui-toggle-unchecked')) {
+            $('#settingsbtn').trigger('click');
+        }
+
+        $('#generator_content').scrollTop(0);
     });
 }
 
