@@ -1,5 +1,3 @@
-[hash0.dannysu.com](http://hash0.dannysu.com)
-
 # Motivation
 I'm interested in using password generators such as hashapass, pwdhash, and
 passwordmaker.org. However, one annoyance I have with hash based generators is
@@ -27,6 +25,21 @@ Cons:
 - Need storage elsewhere for encrypted setting (E.g. Google App Engine)
 - Slightly more things to remember (Need to know where settings are stored)
 
+# Usage
+
+Web:
+
+- Visit [hash0.dannysu.com][3]
+
+Google Chrome:
+
+- git clone and load unpacked extension using the hash0 directory as root
+
+Firefox:
+
+- See [this firefox plugin][4]
+
   [1]: http://PasswordMaker.org
   [2]: http://code.google.com/p/crypto-js/
-
+  [3]: http://hash0.dannysu.com
+  [4]: https://github.com/dannysu/hash0-firefox
