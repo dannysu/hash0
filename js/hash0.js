@@ -97,11 +97,21 @@ function downloadSettings() {
                 mappings = json.mappings;
                 localStorage['mappings'] = JSON.stringify(json.mappings);
             } else {
-                alert('Failed to synchronize settings');
+                if (defined(window.addon)) {
+                    console.log('Failed to synchronize settings');
+                }
+                else {
+                    alert('Failed to synchronize settings');
+                }
             }
         },
         error: function() {
-            alert('Failed to synchronize settings');
+            if (defined(window.addon)) {
+                console.log('Failed to synchronize settings');
+            }
+            else {
+                alert('Failed to synchronize settings');
+            }
         },
         dataType: 'json'
     });
@@ -145,6 +155,33 @@ function uploadSettings(force) {
         data: encrypted,
         processData: false
     });
+}
+
+function initWithUrl(url) {
+    var domain = url.match(/:\/\/(.[^\/]+)/);
+    if (domain !== null) {
+        domain = domain[1];
+    }
+    else {
+        domain = '';
+    }
+    $('#param').val(domain);
+
+    var key = domain;
+    var mapping = findMapping(key);
+    if (mapping !== null) {
+        key = mapping.to;
+    }
+
+    var config = findConfig(key);
+    if (config !== null) {
+        if (defined(config.notes)) {
+            $('#notes').val(config.notes);
+        }
+    } else {
+        $('#submit').parent().find('span[class=ui-btn-text]').html('create');
+    }
+
 }
 
 function init() {
@@ -242,20 +279,26 @@ function init() {
         $('#result').trigger('expand');
         $('#settings').trigger('collapse');
 
+        password = password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+        var code = "                                              \
+            var inputs = document.getElementsByTagName('input');  \
+            var password = '"+password+"';                        \
+            for (var i = 0; i < inputs.length; i++) {             \
+                if (inputs[i].type.toLowerCase() == 'password') { \
+                    inputs[i].value = password;                   \
+                }                                                 \
+            }                                                     \
+        ";
+
         if (defined(window.chrome) && defined(window.chrome.tabs)) {
-		    // Convenience function to insert password directly into password field if it's selected
-			window.chrome.tabs.executeScript({
-                code: "\
-				    var inputs = document.getElementsByTagName('input');\
-					var password = '"+password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"')+"';\
-					for (var i = 0; i < inputs.length; i++) {\
-					    if (inputs[i].type.toLowerCase() == 'password') {\
-							inputs[i].value = password;\
-						}\
-					}\
-				"
-			});
-		}
+            // Insert password directly into password field for Google Chrome
+            window.chrome.tabs.executeScript({
+                code: code
+            });
+        }
+        else if (defined(window.addon)) {
+            window.addon.port.emit("password", code);
+        }
 
         // Update local storage
         if (salt != '') {
@@ -335,25 +378,9 @@ function init() {
     });
 
     if (defined(window.chrome) && defined(window.chrome.tabs)) {
+        // Google Chrome specific code
         window.chrome.tabs.getSelected(null, function(tab) {
-            var domain = tab.url.match(/:\/\/(.[^\/]+)/)[1];
-            $('#param').val(domain);
-
-            var key = domain;
-            var mapping = findMapping(key);
-            if (mapping != null) {
-                key = mapping.to;
-            }
-
-            var config = findConfig(key);
-            if (config != null) {
-                if (defined(config.notes)) {
-                    $('#notes').val(config.notes);
-                }
-            } else {
-                $('#submit').parent().find('span[class=ui-btn-text]').html('create');
-            }
-
+            initWithUrl(tab.url);
         });
     }
 }
@@ -364,6 +391,16 @@ if (navigator.userAgent.match(/Windows Phone/i) ||
     $(document).bind('pageinit', init);
 } else {
     $(document).ready(init);
+}
+
+
+if(defined(window.addon)) {
+    // Firefox specific code
+    $(document.body).css('min-height', '400px');
+
+    window.addon.port.on('show', function(url) {
+        initWithUrl(url);
+    });
 }
 
 })();
