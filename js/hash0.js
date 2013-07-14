@@ -120,6 +120,10 @@ function uploadSettings(force) {
         return;
     }
 
+    if (!defined(localStorage['mappings'])) {
+        localStorage['mappings'] = JSON.stringify(mappings);
+    }
+
     var data = '{"mappings":'+localStorage['mappings']+',"configs":'+localStorage['configs']+'}';
 
     var encryptionPassword = localStorage['encryptionPassword'];
