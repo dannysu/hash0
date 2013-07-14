@@ -3900,7 +3900,9 @@ $.mobile.transitionFallbacks = {};
 
 			// if there's no hash, we need to replacestate for returning to home
 			if ( location.hash === "" ) {
-				history.replaceState( self.state(), document.title, location.href );
+				if (typeof(window.addon) == 'undefined' || window.addon === null) {
+					history.replaceState( self.state(), document.title, location.href );
+				}
 			}
 		}
 	});
