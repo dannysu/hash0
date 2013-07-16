@@ -403,16 +403,6 @@ if(defined(window.addon)) {
     window.addon.port.on('show', function(url) {
         initWithUrl(url);
     });
-
-    window.addon.port.on('hide', function(url) {
-        $('#result').trigger('collapse');
-
-        if ($('#settingsbtn').hasClass('ui-toggle-unchecked')) {
-            $('#settingsbtn').trigger('click');
-        }
-
-        $('#generator_content').scrollTop(0);
-    });
 }
 
 })();
