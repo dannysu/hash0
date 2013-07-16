@@ -171,6 +171,7 @@ function initWithUrl(url) {
     var mapping = findMapping(key);
     if (mapping !== null) {
         key = mapping.to;
+        $('#param').val(key);
     }
 
     var config = findConfig(key);
@@ -384,6 +385,12 @@ function init() {
             initWithUrl(tab.url);
         });
     }
+    else if (defined(window.addon)) {
+        window.addon.port.emit('init');
+        window.addon.port.on('url', function(url) {
+            initWithUrl(url);
+        });
+    }
 }
 
 if (navigator.userAgent.match(/Windows Phone/i) ||
@@ -399,10 +406,6 @@ if(defined(window.addon)) {
     // Firefox specific code
     $(document.body).css('min-height', '335px');
     $(document.body).css('overflow-y', 'hidden');
-
-    window.addon.port.on('show', function(url) {
-        initWithUrl(url);
-    });
 }
 
 })();
