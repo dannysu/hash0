@@ -53,8 +53,7 @@ function findMapping(from) {
 
 function generatePassword(symbol, length, param, number, salt, master) {
 
-    var key = ''+CryptoJS.PBKDF2(master, salt, { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 1000 });
-    var hmac = CryptoJS.HmacSHA512(param+number, key);
+    var key = CryptoJS.PBKDF2(master, param+number+salt, { hasher: CryptoJS.algo.SHA512, keySize: 512/32, iterations: 1000 });
 
     var charset = charsets[0];
     if (symbol == 'on') {
@@ -62,7 +61,7 @@ function generatePassword(symbol, length, param, number, salt, master) {
     }
 
     var password = PasswordMaker_HashUtils.rstr2any(
-        PasswordMaker_HashUtils.binb2rstr(hmac.words),
+        PasswordMaker_HashUtils.binb2rstr(key.words),
         charset
     );
 
