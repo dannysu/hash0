@@ -84,18 +84,36 @@ function downloadSettings() {
     $.ajax({
         url: settingsURL,
         success: function(result) {
+            var loaded = false;
             if (result.success) {
-                // Decrypt settings
-                var decrypted = sjcl.decrypt(encryptionPassword, result.data);
-                var json = JSON.parse(decrypted);
+                var urldecoded = decodeURIComponent(result.data);
+                var encrypted = JSON.parse(urldecoded);
+                if (encrypted.hash0) {
+                    var salt = encrypted.hash0.salt;
+                    delete encrypted.hash0;
 
-                configs = json.configs;
-                downloadedConfigs = JSON.stringify(json.configs);
-                localStorage['configs'] = downloadedConfigs;
+                    var hmac = CryptoJS.HmacSHA512(salt, encryptionPassword);
+                    var encryptionKey = PasswordMaker_HashUtils.rstr2any(
+                        PasswordMaker_HashUtils.binb2rstr(hmac.words),
+                        charsets[1]
+                    );
 
-                mappings = json.mappings;
-                localStorage['mappings'] = JSON.stringify(json.mappings);
-            } else {
+                    // Decrypt settings
+                    var decrypted = sjcl.decrypt(encryptionKey, JSON.stringify(encrypted));
+                    var json = JSON.parse(decrypted);
+
+                    configs = json.configs;
+                    downloadedConfigs = JSON.stringify(json.configs);
+                    localStorage['configs'] = downloadedConfigs;
+
+                    mappings = json.mappings;
+                    localStorage['mappings'] = JSON.stringify(json.mappings);
+
+                    loaded = true;
+                }
+            }
+            
+            if (!loaded) {
                 if (defined(window.addon)) {
                     console.log('Failed to synchronize settings');
                 }
@@ -135,8 +153,18 @@ function uploadSettings(force) {
 
     var data = '{"mappings":'+localStorage['mappings']+',"configs":'+localStorage['configs']+'}';
 
+    // Let's use a different encryption key each time we upload
     var encryptionPassword = localStorage['encryptionPassword'];
-    var encrypted = sjcl.encrypt(encryptionPassword, data);
+    var salt = getSalt(true);
+    var hmac = CryptoJS.HmacSHA512(salt, encryptionPassword);
+    var encryptionKey = PasswordMaker_HashUtils.rstr2any(
+        PasswordMaker_HashUtils.binb2rstr(hmac.words),
+        charsets[1]
+    );
+    var encrypted = sjcl.encrypt(encryptionKey, data);
+    encrypted = JSON.parse(encrypted);
+    encrypted.hash0 = {};
+    encrypted.hash0.salt = salt;
 
     var settingsURL = localStorage['settingsURL'];
     $.ajax({
@@ -151,7 +179,7 @@ function uploadSettings(force) {
         },
         dataType: 'json',
         type: 'POST',
-        data: encrypted,
+        data: JSON.stringify(encrypted),
         processData: false
     });
 }
@@ -185,7 +213,7 @@ function initWithUrl(url) {
 
 }
 
-function getSalt() {
+function getSalt(avoid_user_input) {
     var words = null;
     var sigBytes = 128/8;
 
@@ -201,21 +229,26 @@ function getSalt() {
 
     // Otherwise, prompt user to randomly type a whole bunch of characters
     if (words === null) {
-        // Keep on adding entropy until there's enough
-        while (!sjcl.random.isReady(10)) {
-            var randomTyping = prompt("Please randomly type random characters in order to generate random number");
-            if (randomTyping === null) {
-                break;
-            }
-            sjcl.random.addEntropy(randomTyping);
-        }
-
-        try {
-            words = sjcl.random.randomWords(sigBytes/4, 10);
-        }
-        catch(e) {
-            alert("Couldn't get a good random number to use for salt. Fall back on Math.random().");
+        if (avoid_user_input) {
             words = CryptoJS.lib.WordArray.random(sigBytes).words;
+        }
+        else {
+            // Keep on adding entropy until there's enough
+            while (!sjcl.random.isReady(10)) {
+                var randomTyping = prompt("Please randomly type random characters in order to generate random number");
+                if (randomTyping === null) {
+                    break;
+                }
+                sjcl.random.addEntropy(randomTyping);
+            }
+
+            try {
+                words = sjcl.random.randomWords(sigBytes/4, 10);
+            }
+            catch(e) {
+                alert("Couldn't get a good random number to use for salt. Fall back on Math.random().");
+                words = CryptoJS.lib.WordArray.random(sigBytes).words;
+            }
         }
     }
 
@@ -281,7 +314,7 @@ function init() {
             var config = findConfig(param);
             if (config == null || newpassword == 'on') {
                 // Generate different salt per site to make master password more secure
-                salt = getSalt();
+                salt = getSalt(false);
 
                 var newconfig = {
                     'param': param,
