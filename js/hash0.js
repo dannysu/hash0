@@ -186,6 +186,49 @@ function initWithUrl(url) {
 
 }
 
+function getSalt() {
+    var words = null;
+    var sigBytes = 128/8;
+
+    // First check if browser provides a CSPRNG
+    if ((window && Uint32Array) && ((window.crypto && window.crypto.getRandomValues) || (window.msCrypto && window.msCrypto.getRandomValues))) {
+        try {
+            words = sjcl.random.randomWords(sigBytes/4, 10);
+        }
+        catch(e) {
+            // If something goes wrong then salt remains null
+        }
+    }
+
+    // Otherwise, prompt user to randomly type a whole bunch of characters
+    if (words === null) {
+        // Keep on adding entropy until there's enough
+        while (!sjcl.random.isReady(10)) {
+            var randomTyping = prompt("Please randomly type random characters in order to generate random number");
+            if (randomTyping === null) {
+                break;
+            }
+            sjcl.random.addEntropy(randomTyping);
+        }
+
+        try {
+            words = sjcl.random.randomWords(sigBytes/4, 10);
+        }
+        catch(e) {
+            alert("Couldn't get a good random number to use for salt. Fall back on Math.random().");
+            words = CryptoJS.lib.WordArray.random(sigBytes).words;
+        }
+    }
+
+    var hexChars = [];
+    for (var i = 0; i < sigBytes; i++) {
+        var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+        hexChars.push((bite >>> 4).toString(16));
+        hexChars.push((bite & 0x0f).toString(16));
+    }
+    return hexChars.join('');
+}
+
 function init() {
 
     // Add param input box either in settings area or on front page.
@@ -222,8 +265,7 @@ function init() {
         var symbol = $('#symbol').val();
         var newpassword = $('#newpassword').val();
 
-        // Generate different salt per site to make master password more secure
-        var salt = ''+CryptoJS.lib.WordArray.random(128/8);
+        var salt = null;
         var number = 0;
 
         // Don't use unique salt per site if there is nowhere to store it
@@ -239,6 +281,9 @@ function init() {
 
             var config = findConfig(param);
             if (config == null || newpassword == 'on') {
+                // Generate different salt per site to make master password more secure
+                salt = getSalt();
+
                 var newconfig = {
                     'param': param,
                     'salt': salt,
