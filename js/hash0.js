@@ -371,14 +371,10 @@ function init() {
     });
 
     $('#setup_save').bind('click', function() {
-        // generate the encryption password derived from the master password
-        var password = $('#setup_master').val();
-        localStorage['encryptionPassword'] = generatePassword('on', 30, 'zerobin', '1337', 'saltysnacks', password);
+        var upload = false;
 
-        var url = $('#setup_url').val();
-        localStorage['settingsURL'] = url;
-
-        // Check if there is existing settings
+        // If there are existing settings, then user might be trying to migrate to a different URL.
+        // In that case, prompt and ask.
         if (defined(localStorage['settingsURL']) &&
             defined(localStorage['encryptionPassword'])) {
 
@@ -386,11 +382,19 @@ function init() {
             if (confirm('Migrate existing data to new location?')) {
                 // Migrating data is just uploading what's currently there to
                 // another location and with potentially new encryption password
-                uploadSettings(true);
+                upload = true;
             }
-            else {
-                downloadSettings();
-            }
+        }
+
+        // generate the encryption password derived from the master password
+        var password = $('#setup_master').val();
+        localStorage['encryptionPassword'] = generatePassword('on', 30, 'zerobin', '1337', 'saltysnacks', password);
+
+        var url = $('#setup_url').val();
+        localStorage['settingsURL'] = url;
+
+        if (upload) {
+            uploadSettings(true);
         }
         else {
             downloadSettings();
