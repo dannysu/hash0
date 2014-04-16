@@ -13,6 +13,8 @@ var downloadedConfigs = '';
 var settings = false;
 var mobile = false;
 
+var master_password = null;
+
 function defined(value) {
     if (typeof(value) == 'undefined') {
         return false;
@@ -71,15 +73,13 @@ function generatePassword(symbol, length, param, number, salt, master) {
     return password;
 }
 
-function downloadSettings() {
-    if (!defined(localStorage['encryptionPassword']) ||
-        !defined(localStorage['settingsURL']) ||
+function downloadSettings(callback) {
+    if (!defined(localStorage['settingsURL']) ||
         localStorage['settingsURL'] == '') {
         // No-op if these are not defined
-        return;
+        return callback(null);
     }
 
-    var encryptionPassword = localStorage['encryptionPassword'];
     var settingsURL = localStorage['settingsURL'];
     $.ajax({
         url: settingsURL,
@@ -92,11 +92,7 @@ function downloadSettings() {
                     var salt = encrypted.hash0.salt;
                     delete encrypted.hash0;
 
-                    var hmac = CryptoJS.HmacSHA512(salt, encryptionPassword);
-                    var encryptionKey = PasswordMaker_HashUtils.rstr2any(
-                        PasswordMaker_HashUtils.binb2rstr(hmac.words),
-                        charsets[1]
-                    );
+                    var encryptionKey = generatePassword('on', 30, 'hash0.dannysu.com', '1', salt, master_password);
 
                     // Decrypt settings
                     var decrypted = sjcl.decrypt(encryptionKey, JSON.stringify(encrypted));
@@ -112,39 +108,34 @@ function downloadSettings() {
                     loaded = true;
                 }
             }
-            
+
             if (!loaded) {
-                if (defined(window.addon)) {
-                    console.log('Failed to synchronize settings');
-                }
-                else {
-                    alert('Failed to synchronize settings');
-                }
+                return callback('Failed to synchronize settings');
             }
+            return callback(null);
         },
-        error: function() {
-            if (defined(window.addon)) {
-                console.log('Failed to synchronize settings');
+        error: function(err) {
+            if (err.status == 404) {
+                callback(null);
             }
             else {
-                alert('Failed to synchronize settings');
+                callback('Failed to synchronize settings');
             }
         },
         dataType: 'json'
     });
 }
 
-function uploadSettings(force) {
-    if (!defined(localStorage['encryptionPassword']) ||
-        !defined(localStorage['settingsURL']) ||
+function uploadSettings(force, callback) {
+    if (!defined(localStorage['settingsURL']) ||
         localStorage['settingsURL'] == '') {
         // No-op if these are not defined
-        return;
+        return callback('no settings URL');
     }
 
     if (!force && localStorage['configs'] == downloadedConfigs) {
         // No-op if configs have not changed
-        return;
+        return callback(null);
     }
 
     if (!defined(localStorage['mappings'])) {
@@ -154,13 +145,8 @@ function uploadSettings(force) {
     var data = '{"mappings":'+localStorage['mappings']+',"configs":'+localStorage['configs']+'}';
 
     // Let's use a different encryption key each time we upload
-    var encryptionPassword = localStorage['encryptionPassword'];
     var salt = getSalt(true);
-    var hmac = CryptoJS.HmacSHA512(salt, encryptionPassword);
-    var encryptionKey = PasswordMaker_HashUtils.rstr2any(
-        PasswordMaker_HashUtils.binb2rstr(hmac.words),
-        charsets[1]
-    );
+    var encryptionKey = generatePassword('on', 30, 'hash0.dannysu.com', '1', salt, master_password);
     var encrypted = sjcl.encrypt(encryptionKey, data);
     encrypted = JSON.parse(encrypted);
     encrypted.hash0 = {};
@@ -171,11 +157,12 @@ function uploadSettings(force) {
         url: settingsURL,
         success: function(result) {
             if (!result.success) {
-                alert('Failed to synchronize settings');
+                return callback('Failed to synchronize settings');
             }
+            callback(null);
         },
         error: function(a, status) {
-            alert('Failed to synchronize settings ' + status);
+            callback(a);
         },
         dataType: 'json',
         type: 'POST',
@@ -262,15 +249,6 @@ function getSalt(avoid_user_input) {
 }
 
 function init() {
-
-    // Add param input box either in settings area or on front page.
-    // On desktop, the param box can be hidden to simplify the UI.
-    var paramLocation = "#desktop_param";
-    if (mobile) {
-        paramLocation = "#mobile_param";
-    }
-    $(paramLocation).append('<label for="param">Parameter:</label><input type="text" id="param" name="param" value="">').trigger("create");
-
     // Load configs from local storage if available
     if (defined(localStorage['configs'])) {
         configs = JSON.parse(localStorage['configs']);
@@ -282,17 +260,15 @@ function init() {
 
     // If master password for encryption or settings URL are not configured yet,
     // go configure them first
-    if (!defined(localStorage['encryptionPassword']) ||
-        !defined(localStorage['settingsURL'])) {
+    if (!defined(localStorage['settingsURL'])) {
         $.mobile.changePage("#setup");
     } else {
-        downloadSettings();
+        $.mobile.changePage("#password");
     }
 
     $('#submit').bind('click', function() {
         var notes = $('#notes').val();
         var param = $('#param').val();
-        var master = $('#master').val();
         var length = $('#length').val();
         var symbol = $('#symbol').val();
         var newpassword = $('#newpassword').val();
@@ -301,8 +277,7 @@ function init() {
         var number = 0;
 
         // Don't use unique salt per site if there is nowhere to store it
-        if (!defined(localStorage['encryptionPassword']) ||
-            !defined(localStorage['settingsURL']) ||
+        if (!defined(localStorage['settingsURL']) ||
             localStorage['settingsURL'] == '') {
             salt = '';
         } else {
@@ -351,10 +326,9 @@ function init() {
             }
         }
 
-        var password = generatePassword(symbol, length, param, number, salt, master);
+        var password = generatePassword(symbol, length, param, number, salt, master_password);
 
         $('#output').val(password);
-        $('#master').val('');
         $('#result').trigger('expand');
         $('#settings').trigger('collapse');
 
@@ -385,8 +359,11 @@ function init() {
         }
 
         // Encrypt and update server if configs have changed
-        uploadSettings(false);
-
+        uploadSettings(false, function(err) {
+            if (err) {
+                alert('Failed to synchronize settings');
+            }
+        });
     });
 
     $('#settingsbtn').bind('click', function() {
@@ -399,7 +376,12 @@ function init() {
     });
 
     $('#setup_cancel, #map_cancel').bind('click', function() {
-        $.mobile.changePage('#generator');
+        if (defined(localStorage['settingsURL'])) {
+            $.mobile.changePage('#generator');
+        }
+        else {
+            $.mobile.changePage('#password');
+        }
     });
 
     $('#setup_save').bind('click', function() {
@@ -407,8 +389,7 @@ function init() {
 
         // If there are existing settings, then user might be trying to migrate to a different URL.
         // In that case, prompt and ask.
-        if (defined(localStorage['settingsURL']) &&
-            defined(localStorage['encryptionPassword'])) {
+        if (defined(localStorage['settingsURL'])) {
 
             // If there is, then ask whether to migrate data
             if (confirm('Migrate existing data to new location?')) {
@@ -418,21 +399,32 @@ function init() {
             }
         }
 
-        // generate the encryption password derived from the master password
-        var password = $('#setup_master').val();
-        localStorage['encryptionPassword'] = generatePassword('on', 30, 'zerobin', '1337', 'saltysnacks', password);
+        master_password = $('#setup_master').val();
+        $('#setup_master').val('');
 
         var url = $('#setup_url').val();
         localStorage['settingsURL'] = url;
 
         if (upload) {
-            uploadSettings(true);
+            uploadSettings(true, function(err) {
+                if (err) {
+                    $('#setup_error').html('Failed to migrate settings');
+                }
+                else {
+                    $.mobile.changePage('#generator');
+                }
+            });
         }
         else {
-            downloadSettings();
+            downloadSettings(function(err) {
+                if (err) {
+                    $('#setup_error').html('Failed to download settings');
+                }
+                else {
+                    $.mobile.changePage('#generator');
+                }
+            });
         }
-
-        $.mobile.changePage('#generator');
     });
 
     $('#map_save').bind('click', function() {
@@ -448,9 +440,14 @@ function init() {
         mappings.push(newmapping);
         localStorage['mappings'] = JSON.stringify(mappings);
 
-        uploadSettings(true);
-
-        $.mobile.changePage('#generator');
+        uploadSettings(true, function(err) {
+            if (err) {
+                $('#map_error').html('Failed to save settings');
+            }
+            else {
+                $.mobile.changePage('#generator');
+            }
+        });
     });
 
     $('#param').change(function(e) {
@@ -458,6 +455,21 @@ function init() {
         if (config) {
             alert("Found config for '" + config.param + "'");
         }
+    });
+
+    $('#password_next').bind('click', function() {
+        // Store master password in memory
+        master_password = $('#master').val();
+        $('#master').val('');
+
+        downloadSettings(function(err) {
+            if (err) {
+                $('#password_error').html('Failed to download settings');
+            }
+            else {
+                $.mobile.changePage('#generator');
+            }
+        });
     });
 
     if (defined(window.chrome) && defined(window.chrome.tabs)) {

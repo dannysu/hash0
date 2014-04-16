@@ -31,12 +31,7 @@
 
     <div id="generator_content" data-role="content" data-theme="b">
         <div data-role="fieldcontain">
-            <label style="width:100%" for="master">Master password:</label>
-            <input type="password" name="master" id="master" value=""/>
-            <input type="hidden" name="domain" id="domain" value=""/>
-        </div>
-
-        <div id="mobile_param" data-role="fieldcontain">
+            <label for="param">Parameter:</label><input type="text" id="param" name="param" value="">
         </div>
 
         <br>
@@ -48,9 +43,6 @@
         </fieldset>
 
         <div id="settings" data-role="collapsible">
-            <div id="desktop_param" data-role="fieldcontain">
-            </div>
-
             <div data-role="fieldcontain">
                 <label for="notes">Notes:</label>
                 <input type="text" name="notes" id="notes" value=""/>
@@ -115,6 +107,21 @@
 
 </div><!-- /page -->
 
+<div data-role="page" class="type-interior" data-theme="b" id="password">
+    <div data-role="header" data-theme="b">
+        <h1>hash0</h1>
+    </div><!-- /header -->
+
+    <div id="generator_content" data-role="content" data-theme="b">
+        <div data-role="fieldcontain">
+            <label style="width:100%" for="master">Master password:</label>
+            <input type="password" name="master" id="master" value=""/>
+        </div>
+        <div id="password_error"></div>
+        <a id="password_next" data-role="button" data-inline="true" data-theme="b">Next</a>
+    </div>
+</div>
+
 <div data-role="page" class="type-interior" data-theme="b" id="setup">
     <div data-role="header" data-theme="b">
         <h1>setup</h1>
@@ -128,6 +135,7 @@
             <label style="width:100%" for="setup_url">Storage URL:</label>
             <input type="text" name="setup_url" id="setup_url" value=""/>
         </div>
+        <div id="setup_error"></div>
         <a id="setup_cancel" data-role="button" data-inline="true" data-theme="b">Cancel</a>
         <a id="setup_save" data-role="button" data-inline="true" data-theme="b">Save</a>
     </div>
@@ -146,6 +154,7 @@
             <label for="url">To:</label>
             <input type="text" name="map_to" id="map_to" value=""/>
         </div>
+        <div id="map_error"></div>
         <a id="map_cancel" data-role="button" data-inline="true" data-theme="b">Cancel</a>
         <a id="map_save" data-role="button" data-inline="true" data-theme="b">Save</a>
     </div>
