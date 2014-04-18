@@ -1,0 +1,142 @@
+<div class="type-interior ui-page ui-body-b ui-page-active">
+    <div class="ui-header ui-bar-b">
+        <h1 class="ui-title">Password</h1>
+    </div><!-- /header -->
+
+    <div class="ui-content ui-body-b">
+        <div class="ui-field-contain ui-body ui-br">
+            <label for="param" class="ui-input-text">Parameter:</label>
+            <input type="text" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="param">
+        </div>
+
+        <br>
+        <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                <span class="ui-btn-text">
+                    {{submitLabel}}
+                </span>
+            </span>
+            <button class="ui-btn-hidden">
+                {{submitLabel}}
+            </button>
+        </div>
+        <br>
+
+        <fieldset>
+            <a style="float:right" class="ui-link ui-toggle-button ui-toggle-button-b" data-ng-class="{'ui-toggle-checked': configCollapsed, 'ui-toggle-unchecked': !configCollapsed}" data-ng-click="toggleConfig()" data-ng-checked="!configCollapsed" disable-link>
+                <div class="ui-toggle-icon ui-icon-demo-set"></div>
+                <div class="ui-toggle-caption"></div>
+            </a>
+        </fieldset>
+
+        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': configCollapsed}">
+            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': configCollapsed}">
+                <div class="ui-field-contain ui-body ui-br">
+                    <label for="notes" class="ui-input-text">Notes:</label>
+                    <input type="text" name="notes" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="notes"/>
+                </div>
+
+                <div class="ui-field-contain ui-body ui-br">
+                    <label for="length" class="select ui-select">Length:</label>
+                    <div class="ui-select">
+                        <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+                            <span class="ui-btn-inner ui-btn-corner-all">
+                                <span class="ui-btn-text">{{passwordLength}}</span>
+                                <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                                </span>
+                            </span>
+                            <select name="length" data-ng-model="passwordLength">
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                                <option value="24">24</option>
+                                <option value="25">25</option>
+                                <option value="26">26</option>
+                                <option value="27">27</option>
+                                <option value="28">28</option>
+                                <option value="29">29</option>
+                                <option value="30">30</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-field-contain ui-body ui-br">
+                    <label style="width:100%" for="symbol" class="ui-slider">Include symbols:</label>
+                    <select name="symbol" class="ui-slider-switch" data-ng-model="symbolSelection">
+                        <option value="off">Off</option>
+                        <option value="on">On</option>
+                    </select>
+                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="toggleSymbols()">
+                        <span data-ng-style="symbolOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
+                        <span data-ng-style="symbolOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
+                        <div class="ui-slider-inneroffset">
+                            <a data-ng-style="symbolHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{symbolSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link>
+                                <span class="ui-btn-inner ui-btn-corner-all">
+                                    <span class="ui-btn-text"></span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ui-field-contain ui-body ui-br">
+                    <label style="width:100%" for="newpassword" class="ui-slider">Generate new password:</label>
+                    <select name="newpassword" class="ui-slider-switch" data-ng-model="newPasswordSelection">
+                        <option value="off">Off</option>
+                        <option value="on">On</option>
+                    </select>
+                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="toggleNewPassword()">
+                        <span data-ng-style="newPasswordOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
+                        <span data-ng-style="newPasswordOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
+                        <div class="ui-slider-inneroffset">
+                            <a data-ng-style="newPasswordHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{newPasswordSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping" disable-link>
+                                <span class="ui-btn-inner ui-btn-corner-all">
+                                    <span class="ui-btn-text"></span>
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link>
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">
+                            Setup
+                        </span>
+                    </span>
+                </a>
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link>
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">
+                            Mapping
+                        </span>
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': resultCollapsed}">
+            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': resultCollapsed}">
+                <div class="ui-field-contain ui-body ui-br">
+                    <label for="output" class="ui-input-text">Result:</label>
+                    <input type="text" name="output" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="result"/>
+                </div>
+            </div>
+        </div>
+    </div><!-- /content -->
+
+</div><!-- /page -->

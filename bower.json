@@ -1,0 +1,14 @@
+{
+  "name": "hash0",
+  "description": "Synchronizable PBKDF2 based password generator",
+  "version": "2.0.0",
+  "homepage": "https://github.com/dannysu/hash0",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "1.2.x",
+    "angular-route": "1.2.x",
+    "angular-loader": "1.2.x",
+    "angular-mocks": "~1.2.15"
+  }
+}
