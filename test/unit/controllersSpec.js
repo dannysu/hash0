@@ -3,18 +3,21 @@
 /* jasmine specs for controllers go here */
 
 describe('controllers', function(){
-  beforeEach(module('myApp.controllers'));
+    beforeEach(module('hash0.controllers'));
 
+    it('should have all expected controllers', inject(function($controller) {
+        /*
+        var setupCtrl = $controller('SetupCtrl');
+        expect(setupCtrl).toBeDefined();
 
-  it('should ....', inject(function($controller) {
-    //spec body
-    var myCtrl1 = $controller('MyCtrl1');
-    expect(myCtrl1).toBeDefined();
-  }));
+        var unlockCtrl = $controller('UnlockCtrl');
+        expect(unlockCtrl).toBeDefined();
 
-  it('should ....', inject(function($controller) {
-    //spec body
-    var myCtrl2 = $controller('MyCtrl2');
-    expect(myCtrl2).toBeDefined();
-  }));
+        var generationCtrl = $controller('GenerationCtrl');
+        expect(generationCtrl).toBeDefined();
+
+        var mappingCtrl = $controller('MappingCtrl');
+        expect(mappingCtrl).toBeDefined();
+        */
+    }));
 });

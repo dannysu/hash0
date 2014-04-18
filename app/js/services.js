@@ -20,6 +20,10 @@ angular.module('hash0.services', [])
         this.dirty = false;
     }
 
+    Metadata.prototype.setStorageUrl = function(value) {
+        storage['storageUrl'] = value;
+    };
+
     Metadata.prototype.getStorageUrl = function() {
         return storage['storageUrl'];
     };
@@ -90,14 +94,18 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.addMapping = function(from, to) {
-        if (this.findMapping(from) !== to) {
+        var mapping = this.findMapping(from);
+        if (mapping === null) {
             var newmapping = {
                 'from': from,
                 'to': to,
             };
             this.mappings.push(newmapping);
-            this.dirty = true;
         }
+        else {
+            mapping.to = to;
+        }
+        this.dirty = true;
     };
 
     Metadata.prototype.addConfig = function(options) {
@@ -122,6 +130,9 @@ angular.module('hash0.services', [])
 
         return newconfig;
     };
+
+    var instance = new Metadata();
+    return instance;
 }])
 
 /*
@@ -230,6 +241,9 @@ angular.module('hash0.services', [])
                 }
             });
     };
+
+    var instance = new Synchronization();
+    return instance;
 }])
 
 /*
