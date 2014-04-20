@@ -3,18 +3,18 @@
 /* jasmine specs for services go here */
 
 describe('service', function() {
+    var mockWindow = {};
+    mockWindow.localStorage = {};
+    mockWindow.localStorage.getItem = function(key) {
+        return storage[key];
+    };
+    mockWindow.localStorage.setItem = function(key, value) {
+        storage[key] = value;
+    };
+
     beforeEach(function() {
         module('hash0.services');
         var storage = {};
-
-        var mockWindow = {};
-        mockWindow.localStorage = {};
-        mockWindow.localStorage.getItem = function(key) {
-            return storage[key];
-        };
-        mockWindow.localStorage.setItem = function(key, value) {
-            storage[key] = value;
-        };
 
         module(function($provide) {
             $provide.value('$window', mockWindow);
@@ -133,21 +133,133 @@ describe('service', function() {
         });
     });
 
-    /*
-    describe('sync', function() {
-        it('should initially be clean', inject(function(sync) {
-            console.log(sync);
-            //expect(metadata.isDirty()).toBe(false);
-        }));
-    });
-    */
-
-    /*
     describe('crypto', function() {
-        it('should initially be clean', inject(function(crypto) {
-            console.log(crypto);
-            //expect(metadata.isDirty()).toBe(false);
+        beforeEach(function() {
+            delete mockWindow.crypto;
+        });
+
+        it('generate secure salt if window.crypto.getRandomValues available', inject(function(crypto) {
+            sjcl.random = new sjcl.prng(6);
+
+            var ab = new Uint32Array(32);
+            for (var i = 0; i < ab.length; i++) {
+                ab = 777;
+            }
+            sjcl.random.addEntropy(ab, 1024, "crypto.getRandomValues");
+
+            mockWindow.crypto = {};
+            mockWindow.crypto.getRandomValues = true;
+
+            var salt = crypto.generateSalt();
+            expect(salt.type).toBe(crypto.generatorTypes.csprng);
+        }));
+
+        it("generate salt based on user random input if window.crypto.getRandomValues isn't available", inject(function(crypto) {
+            sjcl.random = new sjcl.prng(6);
+
+            var user_prompt = function(prompt) {
+                return "fkldsajfl;kdsajfkl;djsa";
+            };
+
+            var salt = crypto.generateSalt(user_prompt);
+            expect(salt.type).toBe(crypto.generatorTypes.user);
+        }));
+
+        it("generate salt based on Math.random as last resort", inject(function(crypto) {
+            sjcl.random = new sjcl.prng(6);
+
+            var salt = crypto.generateSalt();
+            expect(salt.type).toBe(crypto.generatorTypes.insecure);
+        }));
+
+        it('should fail password generation if master password not set', inject(function(crypto) {
+            sjcl.random = new sjcl.prng(6);
+            expect(crypto.generatePassword({})).toBe(null);
+        }));
+
+        it('should generate password if master password is set', inject(function(crypto) {
+            crypto.setMasterPassword('test');
+
+            var password = crypto.generatePassword({
+                includeSymbols: true,
+                passwordLength: 20,
+                param: 'hash0.dannysu.com',
+                number: 2,
+                salt: 'saltysnacks',
+                iterations: 55
+            });
+            expect(password.iterations).toBe(55);
+            expect(password.includeSymbols).toBe(true);
+            expect(password.password.length).toBe(20);
         }));
     });
-    */
+
+    describe('sync', function() {
+        var salt;
+
+        it('download with no storage url is a no-op', inject(function(sync, metadata) {
+            metadata.setStorageUrl('');
+
+            sync.download(function(err) {
+                expect(err).toBe(null);
+            });
+        }));
+
+        it('download initially gets 404 and should succeed', inject(function(sync, metadata, crypto) {
+            salt = crypto.generateSalt();
+            metadata.setStorageUrl('https://hash0-test.appspot.com/' + salt.salt);
+
+            sync.download(function(err) {
+                expect(err).toBe(null);
+            });
+        }));
+
+        it('upload should succeed', inject(function(sync, metadata, crypto) {
+            metadata.setStorageUrl('https://hash0-test.appspot.com/' + salt.salt);
+
+            metadata.addConfig({
+                param: 'upload/download test',
+                salt: 'saltysnacks',
+                number: 1,
+                includeSymbols: true,
+                passwordLength: 20,
+                notes: 'note to self'
+            });
+
+            metadata.addMapping('upload from', 'upload to');
+
+            crypto.setMasterPassword('test');
+
+            var shouldContinueWithSalt = function(salt) {
+                return true;
+            };
+
+            sync.upload(true, shouldContinueWithSalt, function(err) {
+                expect(err).toBe(null);
+            });
+        }));
+
+        it('download should succeed', inject(function(sync, metadata, crypto) {
+            metadata.replaceData([], []);
+            var mapping = metadata.findMapping('upload from');
+            expect(mapping).toBe(null);
+            var config = metadata.findConfig('upload/download test');
+            expect(config).toBe(null);
+
+            sync.download(function(err) {
+                expect(err).toBe(null);
+
+                var mapping = metadata.findMapping('upload from');
+                expect(mapping.to).toBe('upload to');
+
+                var config = metadata.findConfig('upload/download test');
+                expect(config.param).toBe('upload/download test');
+                expect(config.salt).toBe('saltysnacks');
+                expect(config.number).toBe(1);
+                expect(config.includeSymbols).toBe(true);
+                expect(config.passwordLength).toBe(20);
+                expect(config.notes).toBe('note to self');
+            });
+        }));
+    });
 });

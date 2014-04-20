@@ -249,7 +249,7 @@ angular.module('hash0.services', [])
 /*
  * Crypto service - provides functions that generate salt or password
  */
-.factory('crypto', function() {
+.factory('crypto', ['$window', function($window) {
     var charsets = new Array(
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
@@ -333,6 +333,10 @@ angular.module('hash0.services', [])
      * generatePassword
      */
     Crypto.prototype.generatePassword = function(options) {
+        if (!this.masterPassword) {
+            return null;
+        }
+
         // Hash0 by default generates passwords that are 30 characters long and
         // includes upper & lowercase alphabet plus symbols
         options.includeSymbols = options.includeSymbols || true;
@@ -365,7 +369,6 @@ angular.module('hash0.services', [])
 
         return {
             password: password,
-            salt: salt,
             iterations: options.iterations,
             includeSymbols: options.includeSymbols
         };
@@ -373,4 +376,4 @@ angular.module('hash0.services', [])
 
     var instance = new Crypto();
     return instance;
-});
+}]);

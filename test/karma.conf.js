@@ -7,7 +7,13 @@ module.exports = function(config){
             'bower_components/angular-route/angular-route.js',
             'bower_components/angular-mocks/angular-mocks.js',
             'app/js/**/*.js',
-            'test/unit/**/*.js'
+            'test/unit/**/*.js',
+            'app/dependencies/cryptojs-3.1.2/rollups/hmac-sha512.js',
+            'app/dependencies/cryptojs-3.1.2/rollups/aes.js',
+            'app/dependencies/cryptojs-3.1.2/rollups/pbkdf2.js',
+            'app/dependencies/cryptojs-3.1.2/rollups/sha512.js',
+            'app/dependencies/sjcl/sjcl.js',
+            'app/dependencies/passwordmaker/hashutils.js'
         ],
 
         autoWatch : true,
