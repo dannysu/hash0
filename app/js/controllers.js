@@ -14,6 +14,14 @@ angular.module('hash0.controllers', [])
 .controller('SetupCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($scope, $window, $location, $timeout, metadata, sync, crypto) {
     $scope.masterPassword = '';
     $scope.storageUrl = '';
+    $scope.firstTime = true;
+    if (metadata.hasStorageUrl()) {
+        $scope.firstTime = false;
+    }
+
+    $scope.cancel = function() {
+        $location.path('/generation');
+    };
 
     $scope.save = function() {
         $scope.loading = true;
@@ -374,13 +382,17 @@ angular.module('hash0.controllers', [])
     if ($window.chrome && $window.chrome.tabs) {
         // Google Chrome specific code
         $window.chrome.tabs.getSelected(null, function(tab) {
-            initWithUrl(tab.url);
+            $scope.$apply(function() {
+                initWithUrl(tab.url);
+            });
         });
     }
     else if ($window.addon) {
         $window.addon.port.emit('init');
         $window.addon.port.on('url', function(url) {
-            initWithUrl(url);
+            $scope.$apply(function() {
+                initWithUrl(url);
+            });
         });
     }
 }])

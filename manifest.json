@@ -2,10 +2,10 @@
   "name": "Hash0",
   "version": "2.0",
   "manifest_version": 2,
-  "description": "Password generator similar to passwordmaker.org",
+  "description": "Synchronizable PBKDF2 based password generator",
   "browser_action": {
     "default_icon": "icon.png",
-    "default_popup": "index.html"
+    "default_popup": "app/index.html"
   },
   "permissions": [
     "tabs",
