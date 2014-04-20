@@ -5,6 +5,26 @@ body {
     min-height:800px;
 }
 
+.outer-box {
+    width: 100%;
+
+    display: -webkit-box;
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+
+    display: -moz-box;
+    -moz-box-align: center;
+    -moz-box-pack: center;
+
+    display: -ms-flexbox;
+    -ms-flex-align: center;
+    -ms-flex-pack: center;
+
+    display: box;
+    box-align: center;
+    box-pack: center;
+}
+
 .ui-icon-demo-help,
 .ui-icon-demo-set {
 	background-repeat: no-repeat;

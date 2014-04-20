@@ -109,26 +109,39 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.addConfig = function(options) {
-        var newconfig = {
+        var newConfig = {
             'param': options.param,
             'salt': options.salt,
             'includeSymbols': options.includeSymbols,
             'passwordLength': options.passwordLength,
-            'notes': options.notes
+            'notes': options.notes,
+            'iterations': options.iterations
         };
-        newconfig.number = options.number || 0;
+        newConfig.number = options.number || 0;
 
         var existingConfig = this.findConfig(options.param);
         if (existingConfig != null) {
-            // Allow creation of new password for a particular site
-            newconfig.number = existingConfig.number + 1;
-            this.updateConfig(options.param, newconfig);
-        } else {
-            this.configs.push(newconfig);
-        }
-        this.dirty = true;
+            // Check if anything has changed
+            if (existingConfig.param == newConfig.param &&
+                existingConfig.salt == newConfig.salt &&
+                existingConfig.includeSymbols == newConfig.includeSymbols &&
+                existingConfig.passwordLength == newConfig.passwordLength &&
+                existingConfig.notes == newConfig.notes &&
+                existingConfig.iterations == newConfig.iterations &&
+                existingConfig.number == newConfig.number) {
 
-        return newconfig;
+                // Nothing has changed, so no-op
+            }
+            else {
+                this.updateConfig(newConfig.param, newConfig);
+                this.dirty = true;
+            }
+        } else {
+            this.configs.push(newConfig);
+            this.dirty = true;
+        }
+
+        return newConfig;
     };
 
     var instance = new Metadata();
@@ -149,7 +162,7 @@ angular.module('hash0.services', [])
             return callback('no storage URL');
         }
 
-        if (!forceUpdate && !metadata.hasChanges()) {
+        if (!forceUpdate && !metadata.isDirty()) {
             // No-op if configs have not changed
             return callback(null);
         }
@@ -169,6 +182,7 @@ angular.module('hash0.services', [])
             number: '1',
             salt: salt.salt
         });
+
         var encrypted = sjcl.encrypt(encryptionKey.password, data);
         encrypted = JSON.parse(encrypted);
 
@@ -213,7 +227,7 @@ angular.module('hash0.services', [])
                             passwordLength: 30,
                             param: 'hash0.dannysu.com',
                             number: '1',
-                            salt: salt,
+                            salt: salt.salt,
                             iterations: iterations
                         });
 
@@ -342,8 +356,8 @@ angular.module('hash0.services', [])
         options.includeSymbols = options.includeSymbols || true;
         options.passwordLength = options.passwordLength || 30;
 
-        // Default to 1000 rounds in PBKDF2 if not specified
-        options.iterations = options.iterations || 1000;
+        // Default to 4096 rounds in PBKDF2 if not specified
+        options.iterations = options.iterations || 4096;
 
         var salt = options.param + options.number + options.salt;
         var key = CryptoJS.PBKDF2(this.masterPassword,

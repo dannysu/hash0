@@ -8,7 +8,7 @@ vulnerability was discovered I had to change pretty much all my passwords. I
 don't want to remember different config per site.
 
 # Details
-Hash0 uses PBKDF2 with 1000 rounds of HMAC-SHA512 to derive password from a
+Hash0 uses PBKDF2 with 4096 rounds of HMAC-SHA512 to derive password from a
 master password. The implementation of PBKDF2 is from [CryptoJS][2]. On top of
 using PBKDF2, Hash0 uses an unique salt per site. Hash0 attempts to use the
 closest possible thing in a browser to a CSPRNG by utilizing [SJCL][5]'s code.

@@ -6,24 +6,27 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="param" class="ui-input-text">Parameter:</label>
-            <input type="text" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="param">
+            <input type="text" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="param"/>
         </div>
 
-        <br>
-        <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b">
+        <br/>
+        <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b" data-ng-hide="loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     {{submitLabel}}
                 </span>
             </span>
-            <button class="ui-btn-hidden">
+            <button class="ui-btn-hidden" data-ng-click="generate()">
                 {{submitLabel}}
             </button>
         </div>
-        <br>
+        <div class="outer-box" data-ng-show="loading">
+            <img src="img/progress-indeterminate-ring-light-small.gif"/>
+        </div>
+        <br/>
 
         <fieldset>
-            <a style="float:right" class="ui-link ui-toggle-button ui-toggle-button-b" data-ng-class="{'ui-toggle-checked': configCollapsed, 'ui-toggle-unchecked': !configCollapsed}" data-ng-click="toggleConfig()" data-ng-checked="!configCollapsed" disable-link>
+            <a style="float:right" class="ui-link ui-toggle-button ui-toggle-button-b" data-ng-class="{'ui-toggle-checked': configCollapsed, 'ui-toggle-unchecked': !configCollapsed}" data-ng-click="toggleConfig()" data-ng-checked="!configCollapsed" disable-link="">
                 <div class="ui-toggle-icon ui-icon-demo-set"></div>
                 <div class="ui-toggle-caption"></div>
             </a>
@@ -33,7 +36,7 @@
             <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': configCollapsed}">
                 <div class="ui-field-contain ui-body ui-br">
                     <label for="notes" class="ui-input-text">Notes:</label>
-                    <input type="text" name="notes" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="notes"/>
+                    <input type="text" name="notes" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="notes"/>
                 </div>
 
                 <div class="ui-field-contain ui-body ui-br">
@@ -84,7 +87,7 @@
                         <span data-ng-style="symbolOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
                         <span data-ng-style="symbolOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
                         <div class="ui-slider-inneroffset">
-                            <a data-ng-style="symbolHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{symbolSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link>
+                            <a data-ng-style="symbolHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{symbolSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
                                 <span class="ui-btn-inner ui-btn-corner-all">
                                     <span class="ui-btn-text"></span>
                                 </span>
@@ -103,7 +106,7 @@
                         <span data-ng-style="newPasswordOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
                         <span data-ng-style="newPasswordOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
                         <div class="ui-slider-inneroffset">
-                            <a data-ng-style="newPasswordHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{newPasswordSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping" disable-link>
+                            <a data-ng-style="newPasswordHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{newPasswordSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
                                 <span class="ui-btn-inner ui-btn-corner-all">
                                     <span class="ui-btn-text"></span>
                                 </span>
@@ -112,14 +115,14 @@
                     </div>
                 </div>
 
-                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link>
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="setup()">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             Setup
                         </span>
                     </span>
                 </a>
-                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link>
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping()">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             Mapping
@@ -133,7 +136,7 @@
             <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': resultCollapsed}">
                 <div class="ui-field-contain ui-body ui-br">
                     <label for="output" class="ui-input-text">Result:</label>
-                    <input type="text" name="output" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="result"/>
+                    <input type="text" name="output" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="result"/>
                 </div>
             </div>
         </div>

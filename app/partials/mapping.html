@@ -6,26 +6,27 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="map_from" class="ui-input-text">From:</label>
-            <input type="text" name="map_from" id="map_from" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field/>
+            <input type="text" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="from"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
             <label for="url" class="ui-input-text">To:</label>
-            <input type="text" name="map_to" id="map_to" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field/>
+            <input type="text" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="to"/>
         </div>
-        <div></div>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b">
+        <div data-ng-show="error">{{errorMessage}}</div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Cancel
                 </span>
             </span>
         </a>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b">
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Save
                 </span>
             </span>
         </a>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
     </div>
 </div>

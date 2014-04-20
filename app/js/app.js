@@ -10,9 +10,10 @@ angular.module('hash0', [
     'hash0.controllers'
 ]).
 config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/dispatcher', {templateUrl: 'partials/dispatcher.html', controller: 'DispatcherCtrl'});
     $routeProvider.when('/setup', {templateUrl: 'partials/setup.html', controller: 'SetupCtrl'});
     $routeProvider.when('/unlock', {templateUrl: 'partials/unlock.html', controller: 'UnlockCtrl'});
     $routeProvider.when('/mapping', {templateUrl: 'partials/mapping.html', controller: 'MappingCtrl'});
     $routeProvider.when('/generation', {templateUrl: 'partials/generation.html', controller: 'GenerationCtrl'});
-    $routeProvider.otherwise({redirectTo: '/setup'});
+    $routeProvider.otherwise({redirectTo: '/dispatcher'});
 }]);

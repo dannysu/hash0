@@ -6,26 +6,27 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label class="ui-input-text">Master password:</label>
-            <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="master_password"/>
+            <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="masterPassword"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
             <label class="ui-input-text">Storage URL:</label>
-            <input type="text" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field data-ng-model="storage_url"/>
+            <input type="text" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="storageUrl"/>
         </div>
-        <div></div>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link data-ng-click="cancel">
+        <div data-ng-show="error">{{errorMessage}}</div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="firstTime || loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Cancel
                 </span>
             </span>
         </a>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link data-ng-click="save">
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Save
                 </span>
             </span>
         </a>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
     </div>
 </div>
