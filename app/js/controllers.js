@@ -3,13 +3,29 @@
 /* Controllers */
 
 angular.module('hash0.controllers', [])
-.controller('DispatcherCtrl', ['$location', 'metadata', function($location, metadata) {
-    if (metadata.hasStorageUrl()) {
-        $location.path('/unlock');
+.controller('DispatcherCtrl', ['$timeout', '$window', '$location', 'metadata', 'crypto', function($timeout, $window, $location, metadata, crypto) {
+
+    var redirect = function() {
+        if (metadata.hasStorageUrl()) {
+            $location.path('/unlock');
+        }
+        else {
+            $location.path('/setup');
+        }
+    };
+
+    if ($window.addon) {
+        $window.addon.port.on('dispatch', function() {
+            $timeout(function() {
+                redirect();
+            }, 10, true);
+        });
+        $window.addon.port.on('wipe', function() {
+            crypto.setMasterPassword(null);
+        });
     }
-    else {
-        $location.path('/setup');
-    }
+
+    redirect();
 }])
 .controller('SetupCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($scope, $window, $location, $timeout, metadata, sync, crypto) {
     $scope.masterPassword = '';
