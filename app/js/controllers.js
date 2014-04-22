@@ -93,7 +93,7 @@ angular.module('hash0.controllers', [])
                 if (err) {
                     $scope.loading = false;
                     $scope.error = true;
-                    $scope.errorMessage = "Failed to download metadata. Perhaps you typed in the wrong password?";
+                    $scope.errorMessage = err;
                 }
                 else {
                     $scope.loading = false;

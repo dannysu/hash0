@@ -213,7 +213,9 @@ angular.module('hash0.services', [])
 
         $http.get(metadata.getStorageUrl()).
             success(function(data, status, headers, config) {
+                var exception = null;
                 var loaded = false;
+
                 if (data.success) {
                     var urldecoded = decodeURIComponent(data.data);
                     var encrypted = JSON.parse(urldecoded);
@@ -232,17 +234,28 @@ angular.module('hash0.services', [])
                         });
 
                         // Decrypt settings
-                        var decrypted = sjcl.decrypt(encryptionKey.password, JSON.stringify(encrypted));
-                        var json = JSON.parse(decrypted);
+                        try {
+                            var decrypted = sjcl.decrypt(encryptionKey.password, JSON.stringify(encrypted));
 
-                        metadata.replaceData(json.configs, json.mappings);
+                            var json = JSON.parse(decrypted);
 
-                        loaded = true;
+                            metadata.replaceData(json.configs, json.mappings);
+
+                            loaded = true;
+                        }
+                        catch (e) {
+                            exception = e;
+                        }
                     }
                 }
 
                 if (!loaded) {
-                    return callback('Failed to synchronize settings');
+                    if (exception) {
+                        return callback("exception from decrypt. Please check that your master password was entered correctly and that storage wasn't tampered with");
+                    }
+                    else {
+                        return callback("Failed to download metadata. Perhaps you typed in the wrong password?");
+                    }
                 }
                 return callback(null);
             }).
@@ -251,7 +264,7 @@ angular.module('hash0.services', [])
                     callback(null);
                 }
                 else {
-                    callback('Failed to synchronize settings');
+                    callback('Failed to download metadata.');
                 }
             });
     };
