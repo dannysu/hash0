@@ -159,7 +159,7 @@ angular.module('hash0.services', [])
 
         if (!metadata.hasStorageUrl()) {
             // No-op if storage URL not provided
-            return callback('no storage URL');
+            return callback(null);
         }
 
         if (!forceUpdate && !metadata.isDirty()) {
