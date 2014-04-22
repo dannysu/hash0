@@ -1,0 +1,21 @@
+<div class="type-interior ui-page ui-body-b ui-page-active">
+    <div class="ui-header ui-bar-b">
+        <h1 class="ui-title">hash0 - test PBKDF2 iterations</h1>
+    </div><!-- /header -->
+
+    <div class="ui-content ui-body-b">
+        <div class="ui-field-contain ui-body ui-br">
+            <label style="width:100%" for="master" class="ui-input-text">Number of iterations:</label>
+            <input type="text" name="master" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="iterations"/>
+        </div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="test()" data-ng-hide="loading">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                <span class="ui-btn-text">
+                    Test
+                </span>
+            </span>
+        </a>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+        <div data-ng-show="delta">roughly: {{delta}} ms</div>
+    </div>
+</div>

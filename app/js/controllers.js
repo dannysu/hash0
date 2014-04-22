@@ -457,4 +457,35 @@ angular.module('hash0.controllers', [])
             }
         });
     };
+}])
+.controller('TestCtrl', ['$scope', '$window', 'crypto', function($scope, $window, crypto) {
+    $scope.iterations = '4096';
+    $scope.loading = false;
+    $scope.delta = null;
+
+    $scope.test = function() {
+        var iterations = parseInt($scope.iterations);
+        $scope.delta = null;
+        var start = new Date().getTime();
+        $scope.loading = true;
+        crypto.setMasterPassword('test');
+        var salt = crypto.generateSalt();
+        var result = crypto.generatePassword({
+            includeSymbols: true,
+            passwordLength: 30,
+            param: 'hash0.dannysu.com',
+            number: '1',
+            salt: salt.salt,
+            iterations: iterations
+        });
+
+        if (result.iterations != iterations) {
+            $window.alert('Something is wrong');
+        }
+
+        var end = new Date().getTime();
+        $scope.loading = false;
+
+        $scope.delta = (end - start);
+    };
 }]);

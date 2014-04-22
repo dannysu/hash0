@@ -15,5 +15,6 @@ config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/unlock', {templateUrl: 'partials/unlock.html', controller: 'UnlockCtrl'});
     $routeProvider.when('/mapping', {templateUrl: 'partials/mapping.html', controller: 'MappingCtrl'});
     $routeProvider.when('/generation', {templateUrl: 'partials/generation.html', controller: 'GenerationCtrl'});
+    $routeProvider.when('/test', {templateUrl: 'partials/test.html', controller: 'TestCtrl'});
     $routeProvider.otherwise({redirectTo: '/dispatcher'});
 }]);
