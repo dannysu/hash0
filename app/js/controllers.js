@@ -291,15 +291,23 @@ angular.module('hash0.controllers', [])
         $scope.configCollapsed = true;
         $scope.resultCollapsed = false;
 
+        var escapedParam = param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
         var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
-        var code = "                                              \
-            var inputs = document.getElementsByTagName('input');  \
-            var password = '"+escapedPassword+"';                        \
-            for (var i = 0; i < inputs.length; i++) {             \
-                if (inputs[i].type.toLowerCase() == 'password') { \
-                    inputs[i].value = password;                   \
-                }                                                 \
-            }                                                     \
+        var code = "                                                  \
+            var url = window.location.href;                           \
+            var domain = url.match(/:\\/\\/(.[^\\/]+)/);              \
+            if (domain !== null) {                                    \
+                domain = domain[1];                                   \
+            }                                                         \
+            if (domain == '"+escapedParam+"') {                       \
+                var inputs = document.getElementsByTagName('input');  \
+                var password = '"+escapedPassword+"';                 \
+                for (var i = 0; i < inputs.length; i++) {             \
+                    if (inputs[i].type.toLowerCase() == 'password') { \
+                        inputs[i].value = password;                   \
+                    }                                                 \
+                }                                                     \
+            }                                                         \
         ";
 
         if ($window.chrome && $window.chrome.tabs) {
