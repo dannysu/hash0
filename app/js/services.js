@@ -369,17 +369,11 @@ angular.module('hash0.services', [])
         options.includeSymbols = options.includeSymbols || true;
         options.passwordLength = options.passwordLength || 30;
 
-        // Default to 4096 rounds in PBKDF2 if not specified
-        options.iterations = options.iterations || 4096;
+        // Default to 100,000 rounds in PBKDF2 if not specified
+        options.iterations = options.iterations || 100000;
 
         var salt = options.param + options.number + options.salt;
-        var key = CryptoJS.PBKDF2(this.masterPassword,
-                                  salt,
-                                  {
-                                      hasher: CryptoJS.algo.SHA512,
-                                      keySize: 512/32,
-                                      iterations: options.iterations
-                                  });
+        var key = sjcl.misc.pbkdf2(this.masterPassword, salt, options.iterations, 512);
 
         var charset = charsets[0];
         if (options.includeSymbols === true) {
@@ -387,7 +381,7 @@ angular.module('hash0.services', [])
         }
 
         var password = PasswordMaker_HashUtils.rstr2any(
-            PasswordMaker_HashUtils.binb2rstr(key.words),
+            PasswordMaker_HashUtils.binb2rstr(key),
             charset
         );
 
