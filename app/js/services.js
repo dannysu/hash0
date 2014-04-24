@@ -303,7 +303,7 @@ angular.module('hash0.services', [])
      */
     Crypto.prototype.generateSalt = function(user_prompt) {
         var words = null;
-        var sigBytes = 128/8;
+        var sigBytes = 256/8;
         var generatorType = null;
 
         // First check if browser provides a CSPRNG
