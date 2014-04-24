@@ -372,8 +372,10 @@ angular.module('hash0.services', [])
         // Default to 100,000 rounds in PBKDF2 if not specified
         options.iterations = options.iterations || 100000;
 
-        var salt = options.param + options.number + options.salt;
-        var key = sjcl.misc.pbkdf2(this.masterPassword, salt, options.iterations, 512);
+        // Convert hex string salt into SJCL's bitArray type.
+        // Doing so preserves the range of numbers in the salt.
+        var saltBitArray = sjcl.codec.hex.toBits(options.salt);
+        var key = sjcl.misc.pbkdf2(this.masterPassword, saltBitArray, options.iterations, 512);
 
         var charset = charsets[0];
         if (options.includeSymbols === true) {

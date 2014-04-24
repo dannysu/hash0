@@ -185,7 +185,7 @@ describe('service', function() {
                 passwordLength: 20,
                 param: 'hash0.dannysu.com',
                 number: 2,
-                salt: 'saltysnacks',
+                salt: 'acd5384e61914f9ba6769a8a03d66cd5',
                 iterations: 55
             });
             expect(password.iterations).toBe(55);
