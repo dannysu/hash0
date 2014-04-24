@@ -133,6 +133,8 @@ angular.module('hash0.services', [])
                 // Nothing has changed, so no-op
             }
             else {
+                newConfig.oldVersions = existingConfig.oldVersions || [];
+                newConfig.oldVersions.push(existingConfig);
                 this.updateConfig(newConfig.param, newConfig);
                 this.dirty = true;
             }

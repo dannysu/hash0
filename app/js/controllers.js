@@ -69,7 +69,7 @@ angular.module('hash0.controllers', [])
         if (upload) {
             var shouldContinueWithSalt = function(salt) {
                 if (salt.type != crypto.generatorTypes.csprng) {
-                    alert("Couldn't get a secure random number generator");
+                    $window.alert("Couldn't get a secure random number generator");
                     return false;
                 }
                 return true;
@@ -137,6 +137,10 @@ angular.module('hash0.controllers', [])
     $scope.param = '';
     $scope.notes = '';
     $scope.result = '';
+
+    $scope.previousResult = null;
+    $scope.loadingPrevious = false;
+    $scope.hasPreviousPassword = false;
 
     $scope.submitLabel = 'generate';
 
@@ -230,6 +234,10 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
+        $scope.previousResult = null;
+        $scope.loadingPrevious = false;
+        $scope.hasPreviousPassword = false;
+
         // Don't use unique salt per site if there is nowhere to store it
         if (!metadata.hasStorageUrl()) {
             salt = '';
@@ -246,7 +254,7 @@ angular.module('hash0.controllers', [])
                 salt = crypto.generateSalt(prompt);
                 if (salt.type != crypto.generatorTypes.csprng) {
                     var message = "Couldn't get a secure random number generator";
-                    alert(message);
+                    $window.alert(message);
                     $scope.loading = false;
                     $scope.error = true;
                     $scope.errorMessage = message;
@@ -256,6 +264,10 @@ angular.module('hash0.controllers', [])
 
                 if (config != null && config.number) {
                     number = config.number + 1;
+                }
+
+                if (config && $scope.generateNewPassword) {
+                    $scope.hasPreviousPassword = true;
                 }
             }
             else {
@@ -275,7 +287,12 @@ angular.module('hash0.controllers', [])
                 if (config.number) {
                     number = config.number;
                 }
+
+                if (config.oldVersions && config.oldVersions.length > 0) {
+                    $scope.hasPreviousPassword = true;
+                }
             }
+
         }
 
         var password = crypto.generatePassword({
@@ -334,7 +351,7 @@ angular.module('hash0.controllers', [])
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
-                alert(message);
+                $window.alert(message);
                 $scope.loading = false;
                 $scope.error = true;
                 $scope.errorMessage = message;
@@ -346,7 +363,7 @@ angular.module('hash0.controllers', [])
         // Encrypt and update server if configs have changed
         sync.upload(false, shouldContinueWithSalt, function(err) {
             if (err) {
-                alert(err);
+                $window.alert(err);
                 $scope.loading = false;
                 $scope.error = true;
                 $scope.errorMessage = err;
@@ -358,6 +375,72 @@ angular.module('hash0.controllers', [])
         });
 
         $scope.toggleNewPassword(false);
+    };
+
+    $scope.showPrevious = function() {
+        $scope.loadingPrevious = true;
+
+        $timeout(function() {
+            $scope.showPreviousInternal();
+        }, 500, true);
+    };
+
+    $scope.showPreviousInternal = function() {
+        var param = $scope.param;
+        var symbol = $scope.includeSymbols;
+        var notes = $scope.notes;
+        var length = parseInt($scope.passwordLength);
+        var iterations = null;
+        var salt = null;
+        var number = 0;
+
+        var mapping = metadata.findMapping(param);
+        if (mapping != null) {
+            param = mapping.to;
+        }
+
+        var config = metadata.findConfig(param);
+        if (!config) {
+            $window.alert("Unexpected error. Can't generate previous password if there is no config.");
+            return;
+        }
+
+        if (!config.oldVersions || config.oldVersions.length == 0) {
+            $window.alert("Unexpected error. No older versions stored.");
+            return;
+        }
+
+        // Load the previous configuration
+        config = config.oldVersions[config.oldVersions.length - 1];
+
+        // Use cached config values
+        if (config.symbol) {
+            symbol = config.symbol;
+        }
+        if (config.length) {
+            length = config.length;
+        }
+        if (config.iterations) {
+            iterations = config.iterations;
+        }
+        if (config.salt) {
+            salt = config.salt;
+        }
+        if (config.number) {
+            number = config.number;
+        }
+
+        var password = crypto.generatePassword({
+            includeSymbols: symbol,
+            passwordLength: length,
+            iterations: iterations,
+            param: param,
+            number: number,
+            salt: salt
+        });
+
+        $scope.previousResult = password.password;
+        $scope.loadingPrevious = false;
     };
 
     $scope.$watch('param', function(newVal, oldVal) {
@@ -420,7 +503,7 @@ angular.module('hash0.controllers', [])
         });
     }
 }])
-.controller('MappingCtrl', ['$scope', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $location, $timeout, sync, metadata, crypto) {
+.controller('MappingCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
     $scope.from = '';
     $scope.to = '';
 
@@ -443,7 +526,7 @@ angular.module('hash0.controllers', [])
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
-                alert(message);
+                $window.alert(message);
                 $scope.loading = false;
                 $scope.error = true;
                 $scope.errorMessage = message;
