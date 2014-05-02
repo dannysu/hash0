@@ -177,34 +177,74 @@ angular.module('hash0.services', [])
             return;
         }
 
-        var encryptionKey = crypto.generatePassword({
+        crypto.generatePassword({
             includeSymbols: true,
             passwordLength: 30,
             param: 'hash0.dannysu.com',
             number: '1',
             salt: salt.salt
+        }, function(password) {
+
+            if (!password) {
+                return callback('Failed to generate password');
+            }
+
+            var encrypted = sjcl.encrypt(password.password, data);
+            encrypted = JSON.parse(encrypted);
+
+            // Store the salt used and # of iterations used
+            // Allows a different encryption key to be used each time we update metadata
+            encrypted.hash0 = {};
+            encrypted.hash0.salt = salt;
+            encrypted.hash0.iterations = password.iterations;
+
+            $http.post(metadata.getStorageUrl(), JSON.stringify(encrypted)).
+                success(function(data, status, headers, config) {
+                    if (!data.success) {
+                        return callback('Failed to synchronize settings');
+                    }
+                    metadata.markClean();
+                    callback(null);
+                }).
+                error(function(data, status, headers, config) {
+                    callback(data || 'Failed to synchronize settings');
+                });
         });
+    };
 
-        var encrypted = sjcl.encrypt(encryptionKey.password, data);
-        encrypted = JSON.parse(encrypted);
+    Synchronization.prototype.decryptDownload = function(data, callback) {
+        var urldecoded = decodeURIComponent(data);
+        var encrypted = JSON.parse(urldecoded);
+        if (encrypted.hash0) {
+            var salt = encrypted.hash0.salt;
+            var iterations = encrypted.hash0.iterations;
+            delete encrypted.hash0;
 
-        // Store the salt used and # of iterations used
-        // Allows a different encryption key to be used each time we update metadata
-        encrypted.hash0 = {};
-        encrypted.hash0.salt = salt;
-        encrypted.hash0.iterations = encryptionKey.iterations;
+            crypto.generatePassword({
+                includeSymbols: true,
+                passwordLength: 30,
+                param: 'hash0.dannysu.com',
+                number: '1',
+                salt: salt.salt,
+                iterations: iterations
+            }, function(password) {
+                // Decrypt settings
+                try {
+                    var decrypted = sjcl.decrypt(password.password, JSON.stringify(encrypted));
 
-        $http.post(metadata.getStorageUrl(), JSON.stringify(encrypted)).
-            success(function(data, status, headers, config) {
-                if (!data.success) {
-                    return callback('Failed to synchronize settings');
+                    var json = JSON.parse(decrypted);
+
+                    return callback(null, json);
                 }
-                metadata.markClean();
-                callback(null);
-            }).
-            error(function(data, status, headers, config) {
-                callback(data || 'Failed to synchronize settings');
+                catch (e) {
+                    return callback("exception from decrypt. Please check that your master password was entered correctly and that storage wasn't tampered with");
+                }
             });
+
+            return;
+        }
+
+        return callback("missing hash0 metadata for encrypted data");
     };
 
     Synchronization.prototype.download = function(callback) {
@@ -213,53 +253,25 @@ angular.module('hash0.services', [])
             return callback(null);
         }
 
+        var self = this;
+
         $http.get(metadata.getStorageUrl()).
             success(function(data, status, headers, config) {
-                var exception = null;
-                var loaded = false;
-
                 if (data.success) {
-                    var urldecoded = decodeURIComponent(data.data);
-                    var encrypted = JSON.parse(urldecoded);
-                    if (encrypted.hash0) {
-                        var salt = encrypted.hash0.salt;
-                        var iterations = encrypted.hash0.iterations;
-                        delete encrypted.hash0;
 
-                        var encryptionKey = crypto.generatePassword({
-                            includeSymbols: true,
-                            passwordLength: 30,
-                            param: 'hash0.dannysu.com',
-                            number: '1',
-                            salt: salt.salt,
-                            iterations: iterations
-                        });
-
-                        // Decrypt settings
-                        try {
-                            var decrypted = sjcl.decrypt(encryptionKey.password, JSON.stringify(encrypted));
-
-                            var json = JSON.parse(decrypted);
-
-                            metadata.replaceData(json.configs, json.mappings);
-
-                            loaded = true;
+                    self.decryptDownload(data.data, function(err, json) {
+                        if (err) {
+                            return callback(err);
                         }
-                        catch (e) {
-                            exception = e;
-                        }
-                    }
+
+                        metadata.replaceData(json.configs, json.mappings);
+
+                        return callback(null);
+                    });
+                    return;
                 }
 
-                if (!loaded) {
-                    if (exception) {
-                        return callback("exception from decrypt. Please check that your master password was entered correctly and that storage wasn't tampered with");
-                    }
-                    else {
-                        return callback("Failed to download metadata. Perhaps you typed in the wrong password?");
-                    }
-                }
-                return callback(null);
+                return callback("Failed to download metadata. Perhaps you typed in the wrong password?");
             }).
             error(function(data, status, headers, config) {
                 if (status == 404) {
@@ -278,13 +290,14 @@ angular.module('hash0.services', [])
 /*
  * Crypto service - provides functions that generate salt or password
  */
-.factory('crypto', ['$window', function($window) {
+.factory('crypto', ['$window', '$timeout', function($window, $timeout) {
     var charsets = new Array(
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
     );
 
     function Crypto() {
+        this.enableWebWorkers = true;
         this.masterPassword = null;
         this.generatorTypes = {
             csprng: 'CSPRNG',
@@ -361,9 +374,12 @@ angular.module('hash0.services', [])
     /*
      * generatePassword
      */
-    Crypto.prototype.generatePassword = function(options) {
+    Crypto.prototype.generatePassword = function(options, callback) {
         if (!this.masterPassword) {
-            return null;
+            $timeout(function() {
+                callback(null);
+            }, 0, true);
+            return;
         }
 
         // Hash0 by default generates passwords that are 30 characters long and
@@ -374,11 +390,35 @@ angular.module('hash0.services', [])
         // Default to 100,000 rounds in PBKDF2 if not specified
         options.iterations = options.iterations || 100000;
 
-        // Convert hex string salt into SJCL's bitArray type.
-        // Doing so preserves the range of numbers in the salt.
-        var saltBitArray = sjcl.codec.hex.toBits(options.salt);
-        var key = sjcl.misc.pbkdf2(this.masterPassword, saltBitArray, options.iterations, 512);
+        if (this.enableWebWorkers && typeof($window.Worker) != 'undefined') {
+            var self = this;
+            var worker = new $window.Worker('./sjcl_worker.js');
+            worker.postMessage({
+                salt: options.salt,
+                iterations: options.iterations,
+                masterPassword: this.masterPassword
+            });
+            worker.onmessage = function(e) {
+                self.onPBKDF2(options, e.data, callback);
+            };
+            worker.onerror = function(e) {
+                $timeout(function() {
+                    callback(null);
+                }, 0, true);
+                return;
+            };
+        }
+        else {
+            // Convert hex string salt into SJCL's bitArray type.
+            // Doing so preserves the range of numbers in the salt.
+            var saltBitArray = sjcl.codec.hex.toBits(options.salt);
+            var key = sjcl.misc.pbkdf2(this.masterPassword, saltBitArray, options.iterations, 512);
 
+            this.onPBKDF2(options, key, callback);
+        }
+    };
+
+    Crypto.prototype.onPBKDF2 = function(options, key, callback) {
         var charset = charsets[0];
         if (options.includeSymbols === true) {
             charset = charsets[1];
@@ -392,11 +432,13 @@ angular.module('hash0.services', [])
         // truncate password to desired length
         password = password.substring(0, options.passwordLength);
 
-        return {
-            password: password,
-            iterations: options.iterations,
-            includeSymbols: options.includeSymbols
-        };
+        $timeout(function() {
+            callback({
+                password: password,
+                iterations: options.iterations,
+                includeSymbols: options.includeSymbols
+            });
+        }, 0, true);
     };
 
     var instance = new Crypto();

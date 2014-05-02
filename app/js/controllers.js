@@ -220,12 +220,6 @@ angular.module('hash0.controllers', [])
         $scope.loading = true;
         $scope.error = false;
 
-        $timeout(function() {
-            $scope.generateInternal();
-        }, 500, true);
-    };
-
-    $scope.generateInternal = function() {
         var param = $scope.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
@@ -295,97 +289,101 @@ angular.module('hash0.controllers', [])
 
         }
 
-        var password = crypto.generatePassword({
+        crypto.generatePassword({
             includeSymbols: symbol,
             passwordLength: length,
             iterations: iterations,
             param: param,
             number: number,
             salt: salt
-        });
+        }, function(password) {
 
-        $scope.result = password.password;
-        $scope.configCollapsed = true;
-        $scope.resultCollapsed = false;
+            if (password) {
+                $scope.result = password.password;
+                $scope.configCollapsed = true;
+                $scope.resultCollapsed = false;
 
-        var escapedParam = param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
-        var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
-        var code = "                                                  \
-            var url = window.location.href;                           \
-            var domain = url.match(/:\\/\\/(.[^\\/]+)/);              \
-            if (domain !== null) {                                    \
-                domain = domain[1];                                   \
-            }                                                         \
-            if (domain == '"+escapedParam+"') {                       \
-                var inputs = document.getElementsByTagName('input');  \
-                var password = '"+escapedPassword+"';                 \
-                for (var i = 0; i < inputs.length; i++) {             \
-                    if (inputs[i].type.toLowerCase() == 'password') { \
-                        inputs[i].value = password;                   \
-                    }                                                 \
-                }                                                     \
-            }                                                         \
-        ";
+                var escapedParam = param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+                var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+                var code = "                                                  \
+                    var url = window.location.href;                           \
+                    var domain = url.match(/:\\/\\/(.[^\\/]+)/);              \
+                    if (domain !== null) {                                    \
+                        domain = domain[1];                                   \
+                    }                                                         \
+                    if (domain == '"+escapedParam+"') {                       \
+                        var inputs = document.getElementsByTagName('input');  \
+                        var password = '"+escapedPassword+"';                 \
+                        for (var i = 0; i < inputs.length; i++) {             \
+                            if (inputs[i].type.toLowerCase() == 'password') { \
+                                inputs[i].value = password;                   \
+                            }                                                 \
+                        }                                                     \
+                    }                                                         \
+                ";
 
-        if ($window.chrome && $window.chrome.tabs) {
-            // Insert password directly into password field for Google Chrome
-            $window.chrome.tabs.executeScript({
-                code: code
-            });
-        }
-        else if ($window.addon) {
-            $window.addon.port.emit("password", code);
-        }
+                if ($window.chrome && $window.chrome.tabs) {
+                    // Insert password directly into password field for Google Chrome
+                    $window.chrome.tabs.executeScript({
+                        code: code
+                    });
+                }
+                else if ($window.addon) {
+                    $window.addon.port.emit("password", code);
+                }
 
-        // Update in-memory config
-        metadata.addConfig({
-            param: param,
-            salt: salt,
-            includeSymbols: password.includeSymbols,
-            passwordLength: password.password.length,
-            notes: notes,
-            iterations: password.iterations,
-            number: number
-        });
+                // Update in-memory config
+                metadata.addConfig({
+                    param: param,
+                    salt: salt,
+                    includeSymbols: password.includeSymbols,
+                    passwordLength: password.password.length,
+                    notes: notes,
+                    iterations: password.iterations,
+                    number: number
+                });
 
-        var shouldContinueWithSalt = function(salt) {
-            if (salt.type != crypto.generatorTypes.csprng) {
-                var message = "Couldn't get a secure random number generator";
+                var shouldContinueWithSalt = function(salt) {
+                    if (salt.type != crypto.generatorTypes.csprng) {
+                        var message = "Couldn't get a secure random number generator";
+                        $window.alert(message);
+                        $scope.loading = false;
+                        $scope.error = true;
+                        $scope.errorMessage = message;
+                        return false;
+                    }
+                    return true;
+                };
+
+                // Encrypt and update server if configs have changed
+                sync.upload(false, shouldContinueWithSalt, function(err) {
+                    if (err) {
+                        $window.alert(err);
+                        $scope.loading = false;
+                        $scope.error = true;
+                        $scope.errorMessage = err;
+                    }
+                    else {
+                        $scope.loading = false;
+                        $scope.error = false;
+                    }
+                });
+
+                $scope.toggleNewPassword(false);
+            }
+            else {
+                var message = 'Failed to generate password';
                 $window.alert(message);
                 $scope.loading = false;
                 $scope.error = true;
                 $scope.errorMessage = message;
-                return false;
-            }
-            return true;
-        };
-
-        // Encrypt and update server if configs have changed
-        sync.upload(false, shouldContinueWithSalt, function(err) {
-            if (err) {
-                $window.alert(err);
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = err;
-            }
-            else {
-                $scope.loading = false;
-                $scope.error = false;
             }
         });
-
-        $scope.toggleNewPassword(false);
     };
 
     $scope.showPrevious = function() {
         $scope.loadingPrevious = true;
 
-        $timeout(function() {
-            $scope.showPreviousInternal();
-        }, 500, true);
-    };
-
-    $scope.showPreviousInternal = function() {
         var param = $scope.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
@@ -430,17 +428,22 @@ angular.module('hash0.controllers', [])
             number = config.number;
         }
 
-        var password = crypto.generatePassword({
+        crypto.generatePassword({
             includeSymbols: symbol,
             passwordLength: length,
             iterations: iterations,
             param: param,
             number: number,
             salt: salt
+        }, function(password) {
+            if (password) {
+                $scope.previousResult = password.password;
+            }
+            else {
+                $window.alert('Failed to generate password');
+            }
+            $scope.loadingPrevious = false;
         });
-
-        $scope.previousResult = password.password;
-        $scope.loadingPrevious = false;
     };
 
     $scope.$watch('param', function(newVal, oldVal) {
@@ -561,22 +564,22 @@ angular.module('hash0.controllers', [])
         $scope.loading = true;
         crypto.setMasterPassword('test');
         var salt = crypto.generateSalt();
-        var result = crypto.generatePassword({
+        crypto.generatePassword({
             includeSymbols: true,
             passwordLength: 30,
             param: 'hash0.dannysu.com',
             number: '1',
             salt: salt.salt,
             iterations: iterations
+        }, function(password) {
+            if (password.iterations != iterations) {
+                $window.alert('Something is wrong');
+            }
+
+            var end = new Date().getTime();
+            $scope.loading = false;
+
+            $scope.delta = (end - start);
         });
-
-        if (result.iterations != iterations) {
-            $window.alert('Something is wrong');
-        }
-
-        var end = new Date().getTime();
-        $scope.loading = false;
-
-        $scope.delta = (end - start);
     };
 }]);

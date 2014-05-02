@@ -138,7 +138,7 @@ describe('service', function() {
             delete mockWindow.crypto;
         });
 
-        it('generate secure salt if window.crypto.getRandomValues available', inject(function(crypto) {
+        it('generates secure salt if window.crypto.getRandomValues available', inject(function(crypto) {
             sjcl.random = new sjcl.prng(6);
 
             var ab = new Uint32Array(32);
@@ -172,26 +172,123 @@ describe('service', function() {
             expect(salt.type).toBe(crypto.generatorTypes.insecure);
         }));
 
-        it('should fail password generation if master password not set', inject(function(crypto) {
-            sjcl.random = new sjcl.prng(6);
-            expect(crypto.generatePassword({})).toBe(null);
-        }));
+        describe('not using web workers', function() {
+            it('should fail password generation if master password not set', inject(function(crypto, $injector) {
+                var $timeout = $injector.get('$timeout');
 
-        it('should generate password if master password is set', inject(function(crypto) {
-            crypto.setMasterPassword('test');
+                sjcl.random = new sjcl.prng(6);
 
-            var password = crypto.generatePassword({
-                includeSymbols: true,
-                passwordLength: 20,
-                param: 'hash0.dannysu.com',
-                number: 2,
-                salt: 'acd5384e61914f9ba6769a8a03d66cd5',
-                iterations: 55
-            });
-            expect(password.iterations).toBe(55);
-            expect(password.includeSymbols).toBe(true);
-            expect(password.password.length).toBe(20);
-        }));
+                var password;
+
+                crypto.enableWebWorkers = false;
+                crypto.generatePassword({}, function(result) {
+                    password = result;
+                });
+
+                $timeout.flush();
+
+                waitsFor(function() {
+                    if (typeof(password) == 'undefined') {
+                        return false;
+                    }
+                    return true;
+                }, 5000);
+
+                expect(password).toBe(null);
+            }));
+
+            it('should generate password if master password is set', inject(function(crypto, $injector) {
+                var $timeout = $injector.get('$timeout');
+
+                crypto.setMasterPassword('test');
+
+                var password;
+
+                crypto.enableWebWorkers = false;
+                crypto.generatePassword({
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    param: 'hash0.dannysu.com',
+                    number: 2,
+                    salt: 'acd5384e61914f9ba6769a8a03d66cd5',
+                    iterations: 55
+                }, function(result) {
+                    password = result;
+                });
+
+                $timeout.flush();
+
+                waitsFor(function() {
+                    if (typeof(password) == 'undefined') {
+                        return false;
+                    }
+                    return true;
+                }, 10000);
+
+                expect(password).toBeDefined();
+                expect(password.iterations).toBe(55);
+                expect(password.includeSymbols).toBe(true);
+                expect(password.password.length).toBe(20);
+            }));
+        });
+
+        describe('using web workers', function() {
+            it('should fail password generation if master password not set', inject(function(crypto, $injector) {
+                var $timeout = $injector.get('$timeout');
+
+                sjcl.random = new sjcl.prng(6);
+
+                var password;
+
+                crypto.generatePassword({}, function(result) {
+                    password = result;
+                });
+
+                $timeout.flush();
+
+                waitsFor(function() {
+                    if (typeof(password) == 'undefined') {
+                        return false;
+                    }
+                    return true;
+                }, 5000);
+
+                expect(password).toBe(null);
+            }));
+
+            it('should generate password if master password is set', inject(function(crypto, $injector) {
+                var $timeout = $injector.get('$timeout');
+
+                crypto.setMasterPassword('test');
+
+                var password;
+
+                crypto.generatePassword({
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    param: 'hash0.dannysu.com',
+                    number: 2,
+                    salt: 'acd5384e61914f9ba6769a8a03d66cd5',
+                    iterations: 55
+                }, function(result) {
+                    password = result;
+                });
+
+                $timeout.flush();
+
+                waitsFor(function() {
+                    if (typeof(password) == 'undefined') {
+                        return false;
+                    }
+                    return true;
+                }, 10000);
+
+                expect(password).toBeDefined();
+                expect(password.iterations).toBe(55);
+                expect(password.includeSymbols).toBe(true);
+                expect(password.password.length).toBe(20);
+            }));
+        });
     });
 
     describe('sync', function() {
@@ -200,22 +297,46 @@ describe('service', function() {
         it('download with no storage url is a no-op', inject(function(sync, metadata) {
             metadata.setStorageUrl('');
 
+            var error;
             sync.download(function(err) {
-                expect(err).toBe(null);
+                error = err;
             });
+
+            waitsFor(function() {
+                return (typeof(error) != 'undefined');
+            }, 5000);
+
+            expect(error).toBe(null);
         }));
 
-        it('download initially gets 404 and should succeed', inject(function(sync, metadata, crypto) {
+        it('download initially gets 404 and should succeed', inject(function($httpBackend, sync, metadata, crypto) {
             salt = crypto.generateSalt();
-            metadata.setStorageUrl('https://hash0-test.appspot.com/' + salt.salt);
+            var url = 'https://hash0-test.appspot.com/' + salt.salt;
+            metadata.setStorageUrl(url);
 
+            $httpBackend.expectGET(url).respond(404, '');
+
+            var error;
             sync.download(function(err) {
-                expect(err).toBe(null);
+                error = err;
             });
+
+            $httpBackend.flush();
+
+            waitsFor(function() {
+                return (typeof(error) != 'undefined');
+            }, 5000);
+
+            expect(error).toBe(null);
         }));
 
-        it('upload should succeed', inject(function(sync, metadata, crypto) {
-            metadata.setStorageUrl('https://hash0-test.appspot.com/' + salt.salt);
+        it('upload should succeed', inject(function($injector, $httpBackend, sync, metadata, crypto) {
+            var $timeout = $injector.get('$timeout');
+
+            var url = 'https://hash0-test.appspot.com/' + salt.salt;
+            metadata.setStorageUrl(url);
+
+            $httpBackend.expectPOST(url).respond({"success": true});
 
             metadata.addConfig({
                 param: 'upload/download test',
@@ -234,32 +355,55 @@ describe('service', function() {
                 return true;
             };
 
+            var error;
             sync.upload(true, shouldContinueWithSalt, function(err) {
-                expect(err).toBe(null);
+                error = err;
             });
+
+            $timeout.flush();
+            $httpBackend.flush();
+
+            waitsFor(function() {
+                return (typeof(error) != 'undefined');
+            }, 5000);
+
+            expect(error).toBe(null);
         }));
 
-        it('download should succeed', inject(function(sync, metadata, crypto) {
+        it('download should succeed', inject(function($injector, $httpBackend, sync, metadata, crypto) {
+            var $timeout = $injector.get('$timeout');
+
+            var url = 'https://hash0-test.appspot.com/' + salt.salt;
+            metadata.setStorageUrl(url);
+
             metadata.replaceData([], []);
             var mapping = metadata.findMapping('upload from');
             expect(mapping).toBe(null);
             var config = metadata.findConfig('upload/download test');
             expect(config).toBe(null);
 
+            $httpBackend.expectGET(url).respond({"success": true});
+
+            sync.decryptDownload = function(data, callback) {
+                callback(null, {
+                    configs: [],
+                    mappings: []
+                });
+            };
+
+            var error;
             sync.download(function(err) {
-                expect(err).toBe(null);
-
-                var mapping = metadata.findMapping('upload from');
-                expect(mapping.to).toBe('upload to');
-
-                var config = metadata.findConfig('upload/download test');
-                expect(config.param).toBe('upload/download test');
-                expect(config.salt).toBe('saltysnacks');
-                expect(config.number).toBe(1);
-                expect(config.includeSymbols).toBe(true);
-                expect(config.passwordLength).toBe(20);
-                expect(config.notes).toBe('note to self');
+                error = err;
             });
+
+            $timeout.flush();
+            $httpBackend.flush();
+
+            waitsFor(function() {
+                return (typeof(error) != 'undefined');
+            }, 5000);
+
+            expect(error).toBe(null);
         }));
     });
 });
