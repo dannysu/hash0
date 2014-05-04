@@ -384,7 +384,12 @@ angular.module('hash0.services', [])
 
         // Hash0 by default generates passwords that are 30 characters long and
         // includes upper & lowercase alphabet plus symbols
-        options.includeSymbols = options.includeSymbols || true;
+        if (options.includeSymbols) {
+            options.includeSymbols = true;
+        }
+        else {
+            options.includeSymbols = false;
+        }
         options.passwordLength = options.passwordLength || 30;
 
         // Default to 100,000 rounds in PBKDF2 if not specified
