@@ -167,20 +167,25 @@ angular.module('hash0.controllers', [])
         $scope.configCollapsed = !$scope.configCollapsed;
     };
 
-    $scope.toggleSymbols = function() {
-        $scope.includeSymbols = !$scope.includeSymbols;
-
-        var temp = $scope.symbolOnStyle;
-        $scope.symbolOnStyle = $scope.symbolOffStyle;
-        $scope.symbolOffStyle = temp;
+    $scope.toggleSymbols = function(value) {
+        if (arguments.length > 0) {
+            $scope.includeSymbols = value;
+        }
+        else {
+            $scope.includeSymbols = !$scope.includeSymbols;
+        }
 
         if ($scope.includeSymbols) {
             $scope.symbolSelection = 'on';
             $scope.symbolHandleStyle = {'left': '100%'};
+            $scope.symbolOnStyle = {'width': '100%'};
+            $scope.symbolOffStyle = {'width': '0%'};
         }
         else {
             $scope.symbolSelection = 'off';
             $scope.symbolHandleStyle = {'left': '0%'};
+            $scope.symbolOnStyle = {'width': '0%'};
+            $scope.symbolOffStyle = {'width': '100%'};
         }
     };
 
@@ -266,11 +271,11 @@ angular.module('hash0.controllers', [])
             }
             else {
                 // Use cached config values
-                if (config.symbol) {
-                    symbol = config.symbol;
+                if (typeof(config.includeSymbols) != 'undefined') {
+                    symbol = config.includeSymbols;
                 }
-                if (config.length) {
-                    length = config.length;
+                if (config.passwordLength) {
+                    length = config.passwordLength;
                 }
                 if (config.iterations) {
                     iterations = config.iterations;
@@ -286,7 +291,6 @@ angular.module('hash0.controllers', [])
                     $scope.hasPreviousPassword = true;
                 }
             }
-
         }
 
         crypto.generatePassword({
@@ -412,11 +416,11 @@ angular.module('hash0.controllers', [])
         config = config.oldVersions[config.oldVersions.length - 1];
 
         // Use cached config values
-        if (config.symbol) {
-            symbol = config.symbol;
+        if (typeof(config.includeSymbols) != 'undefined') {
+            symbol = config.includeSymbols;
         }
-        if (config.length) {
-            length = config.length;
+        if (config.passwordLength) {
+            length = config.passwordLength;
         }
         if (config.iterations) {
             iterations = config.iterations;
@@ -459,6 +463,9 @@ angular.module('hash0.controllers', [])
             }
             if (config.passwordLength) {
                 $scope.passwordLength = ''+config.passwordLength;
+            }
+            if (typeof(config.includeSymbols) != 'undefined') {
+                $scope.toggleSymbols(config.includeSymbols);
             }
             $scope.submitLabel = 'generate';
             $scope.toggleNewPassword(false);
