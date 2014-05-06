@@ -15,6 +15,9 @@ force attacks.
 - passwordmaker.org allows you to pick various algorithms. But runs only 1
   iteration.
 
+The current version of hash0 is v2, which has fixes for issues found in a [security
+audit by Defuse Security][9] of v1 of hash0.
+
 ## Ease of Use
 
 All of these other hash password generation sites use the domain + master
@@ -54,7 +57,8 @@ Pros:
 
 Cons:
 
-- Need storage elsewhere for encrypted setting (E.g. Google App Engine)
+- Need storage elsewhere for encrypted setting (E.g. Google App Engine). You
+  can deploy [gae_storage][8] to your own App Engine account and use it.
 
 # Usage
 
@@ -64,20 +68,21 @@ Google Chrome:
 
 Firefox:
 
-- See [this firefox plugin][4]
+- See [this firefox addon][4]
 
 Web:
 
 - Ideally you should use Hash0 with either the Chrome extension or the Firefox
-  plugin. Doing so ensures that the files are not tampered with.
+  addon. Doing so ensures that the files are not tampered with.
 - Otherwise, knowing the risk you can still visit
-  [https://hash0.dannysu.com][3] to access it. You need to import CA cert from
-  cacert.org.
+  [https://hash0.pw][3] to access it. It delivers the files to you via HTTPS.
 
   [1]: http://PasswordMaker.org
   [2]: http://code.google.com/p/crypto-js/
-  [3]: https://hash0.dannysu.com
+  [3]: https://hash0.pw
   [4]: https://github.com/dannysu/hash0-firefox
   [5]: https://crypto.stanford.edu/sjcl/
   [6]: http://hashapass.com
   [7]: https://www.pwdhash.com/
+  [8]: https://github.com/dannysu/gae_storage
+  [9]: https://defuse.ca/audits/hash0.htm
