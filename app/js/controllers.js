@@ -104,7 +104,7 @@ angular.module('hash0.controllers', [])
         }
     };
 }])
-.controller('UnlockCtrl', ['$scope', '$location', '$timeout', 'crypto', 'sync', function($scope, $location, $timeout, crypto, sync) {
+.controller('UnlockCtrl', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', function($scope, $location, $timeout, crypto, sync, metadata) {
     $scope.masterPassword = '';
 
     $scope.next = function() {
@@ -116,6 +116,11 @@ angular.module('hash0.controllers', [])
         $timeout(function() {
             $scope.nextInternal();
         }, 500, true);
+    };
+
+    $scope.reset = function() {
+        metadata.setStorageUrl('');
+        $location.path('/setup');
     };
 
     $scope.nextInternal = function() {
