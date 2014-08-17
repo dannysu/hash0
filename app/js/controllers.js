@@ -104,8 +104,15 @@ angular.module('hash0.controllers', [])
         }
     };
 }])
-.controller('UnlockCtrl', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', function($scope, $location, $timeout, crypto, sync, metadata) {
+.controller('UnlockCtrl', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($scope, $location, $timeout, crypto, sync, metadata, $window) {
     $scope.masterPassword = '';
+
+    if ($window.addon) {
+        $window.addon.port.on('wipe', function() {
+            crypto.setMasterPassword(null);
+            $scope.masterPassword = '';
+        });
+    }
 
     $scope.next = function() {
         crypto.setMasterPassword($scope.masterPassword);
