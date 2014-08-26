@@ -147,6 +147,7 @@ angular.module('hash0.controllers', [])
 }])
 .controller('GenerationCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
     $scope.param = '';
+    $scope.original_param = '';
     $scope.notes = '';
     $scope.result = '';
 
@@ -319,7 +320,7 @@ angular.module('hash0.controllers', [])
                 $scope.configCollapsed = true;
                 $scope.resultCollapsed = false;
 
-                var escapedParam = param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+                var escapedParam = $scope.original_param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var code = "                                                  \
                     var url = window.location.href;                           \
@@ -499,6 +500,7 @@ angular.module('hash0.controllers', [])
             domain = '';
         }
         $scope.param = domain;
+        $scope.original_param = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
