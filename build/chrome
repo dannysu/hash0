@@ -12,7 +12,14 @@ mkdir -p "$TMPDIR/chrome"
 bower install
 cp -r "$BASEDIR/bower_components" "$TMPDIR/chrome/bower_components"
 cp -r "$BASEDIR/app" "$TMPDIR/chrome/app"
+rm -rf "$TMPDIR/chrome/app/dependencies/sjcl/test"
+rm -rf "$TMPDIR/chrome/app/dependencies/sjcl/compress"
+rm -rf "$TMPDIR/chrome/app/dependencies/sjcl/jsdoc_toolkit-2.3.3-beta"
 cp "$BASEDIR/manifest.json" "$TMPDIR/chrome/"
 cp "$BASEDIR/icon.png" "$TMPDIR/chrome/"
+
+pushd "$TMPDIR/chrome/"
+zip -r ../hash0.chrome.zip *
+popd
 
 popd
