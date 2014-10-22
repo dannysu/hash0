@@ -1,0 +1,18 @@
+#!/bin/sh
+
+BUILDDIR=$(dirname $0)
+BASEDIR="$BUILDDIR/.."
+TMPDIR="$BASEDIR/tmp"
+
+pushd "$BASEDIR"
+
+rm -rf "$TMPDIR"
+mkdir -p "$TMPDIR/chrome"
+
+bower install
+cp -r "$BASEDIR/bower_components" "$TMPDIR/chrome/bower_components"
+cp -r "$BASEDIR/app" "$TMPDIR/chrome/app"
+cp "$BASEDIR/manifest.json" "$TMPDIR/chrome/"
+cp "$BASEDIR/icon.png" "$TMPDIR/chrome/"
+
+popd
