@@ -68,7 +68,7 @@ Google Chrome:
 
 Firefox:
 
-- See [this firefox addon][4]
+- [Firefox addon][10] - [source][4]
 
 Web:
 
@@ -86,3 +86,4 @@ Web:
   [7]: https://www.pwdhash.com/
   [8]: https://github.com/dannysu/gae_storage
   [9]: https://defuse.ca/audits/hash0.htm
+  [10]: https://addons.mozilla.org/en-US/firefox/addon/hash0/
