@@ -64,7 +64,7 @@ Cons:
 
 Google Chrome:
 
-- git clone and load unpacked extension using the hash0 directory as root
+- [Chrome extension][11]
 
 Firefox:
 
@@ -87,3 +87,4 @@ Web:
   [8]: https://github.com/dannysu/gae_storage
   [9]: https://defuse.ca/audits/hash0.htm
   [10]: https://addons.mozilla.org/en-US/firefox/addon/hash0/
+  [11]: https://chrome.google.com/webstore/detail/hash0/haegjcmhodibkoppdhllebnpmdlibied?hl=en-US
