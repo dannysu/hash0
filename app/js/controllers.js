@@ -151,6 +151,8 @@ angular.module('hash0.controllers', [])
     $scope.notes = '';
     $scope.result = '';
 
+    $scope.params = metadata.getAllParams();
+
     $scope.previousResult = null;
     $scope.loadingPrevious = false;
     $scope.hasPreviousPassword = false;
@@ -531,6 +533,29 @@ angular.module('hash0.controllers', [])
     $scope.from = '';
     $scope.to = '';
 
+    var unsorted_params = metadata.getAllParams();
+    var params = [];
+    for (var i = 0; i < unsorted_params.length; i++) {
+        var domain = unsorted_params[i];
+
+        var matches = domain.match(/\./g);
+        if (matches != null && matches.length > 1) {
+            var index = domain.lastIndexOf('.');
+
+            var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
+            params.push(company + ' (' + domain + ')');
+        }
+        else {
+            params.push(domain);
+        }
+    }
+    $scope.params = params.sort();
+
+    $scope.mappings = metadata.getAllMappings();
+    for (var i = 0; i < $scope.mappings.length; i++) {
+        $scope.mappings[i].label = $scope.mappings[i].from + ' > ' + $scope.mappings[i].to;
+    }
+
     $scope.cancel = function() {
         $location.path('/generation');
     };
@@ -538,6 +563,13 @@ angular.module('hash0.controllers', [])
     $scope.save = function() {
         $scope.loading = true;
         $scope.error = false;
+
+        if (!$scope.to) {
+            $scope.loading = false;
+            $scope.error = true;
+            $scope.errorMessage = 'Please select a target to map to.';
+            return;
+        }
 
         $timeout(function() {
             $scope.saveInternal();
@@ -568,6 +600,57 @@ angular.module('hash0.controllers', [])
             else {
                 $scope.loading = false;
                 $scope.error = false;
+                $location.path('/generation');
+            }
+        });
+    };
+
+    $scope.remove = function() {
+        $scope.remove_loading = true;
+        $scope.remove_error = false;
+
+        if (!$scope.selected_mapping) {
+            $scope.remove_loading = false;
+            $scope.remove_error = true;
+            $scope.remove_errorMessage = 'Please select a mapping.';
+            return;
+        }
+
+        var confirm_remove = $window.confirm('Remove mapping from ' + $scope.selected_mapping.from + ' to ' + $scope.selected_mapping.to + '?');
+        if (!confirm_remove) {
+            $scope.remove_loading = false;
+            return;
+        }
+
+        $timeout(function() {
+            $scope.removeInternal();
+        }, 500, true);
+    };
+
+    $scope.removeInternal = function() {
+        metadata.removeMapping($scope.selected_mapping.from, $scope.selected_mapping.to);
+
+        var shouldContinueWithSalt = function(salt) {
+            if (salt.type != crypto.generatorTypes.csprng) {
+                var message = "Couldn't get a secure random number generator";
+                $window.alert(message);
+                $scope.remove_loading = false;
+                $scope.remove_error = true;
+                $scope.remove_errorMessage = message;
+                return false;
+            }
+            return true;
+        };
+
+        sync.upload(true, shouldContinueWithSalt, function(err) {
+            if (err) {
+                $scope.remove_loading = false;
+                $scope.remove_error = true;
+                $scope.remove_errorMessage = "Failed to upload metadata.";
+            }
+            else {
+                $scope.remove_loading = false;
+                $scope.remove_error = false;
                 $location.path('/generation');
             }
         });

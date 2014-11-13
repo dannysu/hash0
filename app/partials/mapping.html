@@ -9,8 +9,20 @@
             <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="from"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
-            <label for="url" class="ui-input-text">To:</label>
-            <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="to"/>
+            <label for="map_to" class="select ui-select">To:</label>
+            <div class="ui-select">
+                <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">{{to || '-- choose target --'}}</span>
+                        <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                        </span>
+                    </span>
+
+                    <select data-ng-model="to" data-ng-options="param for param in params">
+                        <option value="">-- choose target --</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div data-ng-show="error">{{errorMessage}}</div>
         <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="loading">
@@ -28,5 +40,38 @@
             </span>
         </a>
         <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+    </div>
+
+    <div data-ng-show="mappings.length > 0">
+        <div class="ui-header ui-bar-b">
+            <h1 class="ui-title">remove mapping</h1>
+        </div><!-- /header -->
+
+        <div class="ui-content ui-body-b">
+            <div class="ui-select">
+                <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">{{selected_mapping ? selected_mapping.label : '-- choose mapping --'}}</span>
+                        <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                        </span>
+                    </span>
+
+                    <select data-ng-model="selected_mapping" data-ng-options="mapping.label for mapping in mappings">
+                        <option value="">-- choose mapping --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div data-ng-show="remove_error">{{remove_errorMessage}}</div>
+            <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="remove()" data-ng-hide="remove_loading">
+                <span class="ui-btn-inner ui-btn-corner-all">
+                    <span class="ui-btn-text">
+                        Remove
+                    </span>
+                </span>
+            </a>
+            <br/>
+            <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="remove_loading"/>
+        </div>
     </div>
 </div>

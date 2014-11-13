@@ -45,6 +45,26 @@ angular.module('hash0.services', [])
         }
     };
 
+    Metadata.prototype.getAllParams = function() {
+        var params = [];
+        for (var i = 0; i < this.configs.length; i++) {
+            params.push(this.configs[i].param);
+        }
+        return params;
+    };
+
+    Metadata.prototype.getAllMappings = function() {
+        var mappings = [];
+        for (var i = 0; i < this.mappings.length; i++) {
+            var mapping = this.mappings[i];
+            mappings.push({
+                from: mapping.from,
+                to: mapping.to
+            });
+        }
+        return mappings;
+    };
+
     Metadata.prototype.findConfig = function(param, partial_match) {
         partial_match = partial_match || false;
 
@@ -108,6 +128,17 @@ angular.module('hash0.services', [])
         this.dirty = true;
     };
 
+    Metadata.prototype.removeMapping = function(from, to) {
+        for (var i = 0; i < this.mappings.length; i++) {
+            var mapping = this.mappings[i];
+            if (mapping.from == from && mapping.to == to) {
+                this.mappings.splice(i, 1);
+                break;
+            }
+        }
+        this.dirty = true;
+    };
+
     Metadata.prototype.addConfig = function(options) {
         var newConfig = {
             'param': options.param,
@@ -145,6 +176,16 @@ angular.module('hash0.services', [])
         }
 
         return newConfig;
+    };
+
+    Metadata.prototype.removeConfig = function(param) {
+        for (var i = 0; i < this.configs.length; i++) {
+            if (this.configs[i].param == param) {
+                this.configs.splice(i, 1);
+                break;
+            }
+        }
+        this.dirty = true;
     };
 
     var instance = new Metadata();
