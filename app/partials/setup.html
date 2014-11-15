@@ -4,6 +4,9 @@
     </div><!-- /header -->
 
     <div class="ui-content ui-body-b">
+        <div data-ng-hide="firstTime">
+            You can change where metadata are stored by entering the master password again and enter a different storage URL.
+        </div>
         <div class="ui-field-contain ui-body ui-br">
             <label class="ui-input-text">Master password:</label>
             <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="masterPassword"/>
@@ -20,7 +23,7 @@
                 </span>
             </span>
         </a>
-        <a id="save" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading">
+        <a id="save" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading || !storageUrl || !masterPassword">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Save
