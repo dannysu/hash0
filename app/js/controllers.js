@@ -547,14 +547,40 @@ angular.module('hash0.controllers', [])
         else {
             domain = '';
         }
-        $scope.param = domain;
+
+        var found = false;
+        for (var i = 0; i < $scope.params.length; i++) {
+            if (domain == $scope.params[i].param) {
+                found = true;
+            }
+        }
+
+        if (found) {
+            $scope.param = domain;
+        }
+        else {
+            $scope.manual_param = domain;
+        }
         $scope.original_param = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
         if (mapping !== null) {
             key = mapping.to;
-            $scope.param = key;
+
+            found = false;
+            for (var i = 0; i < $scope.params.length; i++) {
+                if (key == $scope.params[i].param) {
+                    found = true;
+                }
+            }
+
+            if (found) {
+                $scope.param = key;
+            }
+            else {
+                $scope.manual_param = key;
+            }
         }
     }
 
