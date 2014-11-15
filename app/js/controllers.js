@@ -662,12 +662,6 @@ angular.module('hash0.controllers', [])
             return;
         }
 
-        var confirm_remove = $window.confirm('Remove mapping from ' + $scope.selected_mapping.from + ' to ' + $scope.selected_mapping.to + '?');
-        if (!confirm_remove) {
-            $scope.remove_loading = false;
-            return;
-        }
-
         $timeout(function() {
             $scope.removeInternal();
         }, 500, true);
@@ -731,13 +725,6 @@ angular.module('hash0.controllers', [])
     $scope.remove = function() {
         $scope.loading = true;
         $scope.error = false;
-
-        var confirm_remove = $window.confirm('Remove password for "' + $scope.param + '"?');
-        if (!confirm_remove) {
-            $scope.loading = false;
-            $scope.error = false;
-            return;
-        }
 
         $timeout(function() {
             $scope.removeInternal();
