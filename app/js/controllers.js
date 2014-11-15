@@ -151,7 +151,23 @@ angular.module('hash0.controllers', [])
     $scope.notes = '';
     $scope.result = '';
 
-    $scope.params = metadata.getAllParams();
+    var unsorted_params = metadata.getAllParams();
+    var params = [];
+    for (var i = 0; i < unsorted_params.length; i++) {
+        var domain = unsorted_params[i];
+
+        var matches = domain.match(/\./g);
+        if (matches != null && matches.length > 1) {
+            var index = domain.lastIndexOf('.');
+
+            var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
+            params.push(company + ' (' + domain + ')');
+        }
+        else {
+            params.push(domain);
+        }
+    }
+    $scope.params = params.sort();
 
     $scope.previousResult = null;
     $scope.loadingPrevious = false;
@@ -251,6 +267,17 @@ angular.module('hash0.controllers', [])
         var iterations = null;
         var salt = null;
         var number = 0;
+
+        if (!param) {
+            param = $scope.manual_param;
+
+            if (!param) {
+                $scope.loading = false;
+                $scope.error = true;
+                $scope.errorMessage = "Parameter must be provided";
+                return;
+            }
+        }
 
         $scope.previousResult = null;
         $scope.loadingPrevious = false;
@@ -415,6 +442,10 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
+        if (!param) {
+            param = $scope.manual_param;
+        }
+
         var mapping = metadata.findMapping(param);
         if (mapping != null) {
             param = mapping.to;
@@ -469,8 +500,7 @@ angular.module('hash0.controllers', [])
         });
     };
 
-    $scope.$watch('param', function(newVal, oldVal) {
-        var key = newVal;
+    var handleParamChange = function(key) {
         var mapping = metadata.findMapping(key);
         if (mapping) {
             key = mapping.to;
@@ -495,6 +525,18 @@ angular.module('hash0.controllers', [])
             $scope.submitLabel = 'create';
             $scope.toggleNewPassword(true);
         }
+    };
+
+    $scope.$watch('manual_param', function(newVal, oldVal) {
+        handleParamChange(newVal);
+    });
+
+    $scope.$watch('param', function(newVal, oldVal) {
+        var key = newVal;
+        if (key === null) {
+            key = $scope.manual_param;
+        }
+        handleParamChange(key);
     });
 
     function initWithUrl(url) {

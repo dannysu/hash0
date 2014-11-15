@@ -6,7 +6,21 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="param" class="ui-input-text">Parameter:</label>
-            <input type="text" autocorrect="off" autocapitalize="off" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="param"/>
+            <div class="ui-select">
+                <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">{{param || '-- add new --'}}</span>
+                        <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                        </span>
+                    </span>
+
+                    <select data-ng-model="param" data-ng-options="param for param in params">
+                        <option value="">-- add new --</option>
+                    </select>
+                </div>
+            </div>
+            <br data-ng-show="param === null || param.length == 0"/>
+            <input type="text" autocorrect="off" autocapitalize="off" name="manual_param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="manual_param" data-ng-show="param === null || param.length == 0"/>
         </div>
 
         <br/>
