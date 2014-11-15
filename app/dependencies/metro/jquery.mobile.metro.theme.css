@@ -2195,6 +2195,7 @@ Dropbox
     font-weight: normal;
     margin: 0px;
     height: 32px;
+    padding-top: 0.3em;
 }
 
 .ui-select .ui-btn.ui-disabled{
