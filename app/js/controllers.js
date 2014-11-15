@@ -146,7 +146,7 @@ angular.module('hash0.controllers', [])
     };
 }])
 .controller('GenerationCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
-    $scope.param = '';
+    $scope.param = null;
     $scope.original_param = '';
     $scope.notes = '';
     $scope.result = '';
@@ -161,10 +161,16 @@ angular.module('hash0.controllers', [])
             var index = domain.lastIndexOf('.');
 
             var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push(company + ' (' + domain + ')');
+            params.push({
+                "param": domain,
+                "display": company + ' (' + domain + ')'
+            });
         }
         else {
-            params.push(domain);
+            params.push({
+                "param": domain,
+                "display": domain
+            });
         }
     }
     $scope.params = params.sort();
@@ -260,7 +266,7 @@ angular.module('hash0.controllers', [])
         $scope.loading = true;
         $scope.error = false;
 
-        var param = $scope.param;
+        var param = (!$scope.param) ? $scope.manual_param : $scope.param.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
         var length = parseInt($scope.passwordLength);
@@ -269,14 +275,10 @@ angular.module('hash0.controllers', [])
         var number = 0;
 
         if (!param) {
-            param = $scope.manual_param;
-
-            if (!param) {
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = "Parameter must be provided";
-                return;
-            }
+            $scope.loading = false;
+            $scope.error = true;
+            $scope.errorMessage = "Parameter must be provided";
+            return;
         }
 
         $scope.previousResult = null;
@@ -434,7 +436,7 @@ angular.module('hash0.controllers', [])
     $scope.showPrevious = function() {
         $scope.loadingPrevious = true;
 
-        var param = $scope.param;
+        var param = (!$scope.param) ? $scope.manual_param : $scope.param.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
         var length = parseInt($scope.passwordLength);
@@ -532,7 +534,7 @@ angular.module('hash0.controllers', [])
     });
 
     $scope.$watch('param', function(newVal, oldVal) {
-        var key = newVal;
+        var key = newVal ? newVal.param : null;
         if (key === null) {
             key = $scope.manual_param;
         }
@@ -548,19 +550,6 @@ angular.module('hash0.controllers', [])
             domain = '';
         }
 
-        var found = false;
-        for (var i = 0; i < $scope.params.length; i++) {
-            if (domain == $scope.params[i].param) {
-                found = true;
-            }
-        }
-
-        if (found) {
-            $scope.param = domain;
-        }
-        else {
-            $scope.manual_param = domain;
-        }
         $scope.original_param = domain;
 
         var key = domain;
@@ -570,16 +559,29 @@ angular.module('hash0.controllers', [])
 
             found = false;
             for (var i = 0; i < $scope.params.length; i++) {
-                if (key == $scope.params[i].param) {
+                var entry = $scope.params[i];
+                if (key == entry.param) {
+                    $scope.param = entry;
                     found = true;
                 }
             }
 
-            if (found) {
-                $scope.param = key;
-            }
-            else {
+            if (!found) {
                 $scope.manual_param = key;
+            }
+        }
+        else {
+            var found = false;
+            for (var i = 0; i < $scope.params.length; i++) {
+                var entry = $scope.params[i];
+                if (domain == entry.param) {
+                    $scope.param = entry;
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                $scope.manual_param = domain;
             }
         }
     }
@@ -603,7 +605,7 @@ angular.module('hash0.controllers', [])
 }])
 .controller('MappingCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
     $scope.from = '';
-    $scope.to = '';
+    $scope.to = null;
 
     var unsorted_params = metadata.getAllParams();
     var params = [];
@@ -615,10 +617,16 @@ angular.module('hash0.controllers', [])
             var index = domain.lastIndexOf('.');
 
             var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push(company + ' (' + domain + ')');
+            params.push({
+                "param": domain,
+                "display": company + ' (' + domain + ')'
+            });
         }
         else {
-            params.push(domain);
+            params.push({
+                "param": domain,
+                "display": domain
+            });
         }
     }
     $scope.params = params.sort();
@@ -649,7 +657,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.saveInternal = function() {
-        metadata.addMapping($scope.from, $scope.to);
+        metadata.addMapping($scope.from, $scope.to.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {

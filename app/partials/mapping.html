@@ -13,12 +13,12 @@
             <div class="ui-select">
                 <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
                     <span class="ui-btn-inner ui-btn-corner-all">
-                        <span class="ui-btn-text">{{to || '-- choose target --'}}</span>
+                        <span class="ui-btn-text">{{to ? to.display : '-- choose target --'}}</span>
                         <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
                         </span>
                     </span>
 
-                    <select data-ng-model="to" data-ng-options="param for param in params">
+                    <select data-ng-model="to" data-ng-options="param.display for param in params">
                         <option value="">-- choose target --</option>
                     </select>
                 </div>
