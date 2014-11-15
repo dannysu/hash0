@@ -80,6 +80,16 @@ angular.module('hash0.services', [])
         return null;
     };
 
+    Metadata.prototype.findConfigs = function(param) {
+        var matches = [];
+        for (var i = 0; i < this.configs.length; i++) {
+            if (this.configs[i].param.indexOf(param) >= 0) {
+                matches.push(this.configs[i]);
+            }
+        }
+        return matches;
+    };
+
     Metadata.prototype.findMapping = function(from) {
         for (var i = 0; i < this.mappings.length; i++) {
             if (this.mappings[i].from == from) {

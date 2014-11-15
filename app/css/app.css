@@ -71,3 +71,9 @@ body {
 .ui-btn-down-a .ui-icon-demo-set{
 	background-image: url(../img/set.light.png);
 }
+
+.ui-btn-input-like {
+    background-color: #BFBFBF;
+    border: 0px;
+    font-weight: normal;
+}

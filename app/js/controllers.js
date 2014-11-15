@@ -146,34 +146,12 @@ angular.module('hash0.controllers', [])
     };
 }])
 .controller('GenerationCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
-    $scope.param = null;
+    $scope.param = '';
     $scope.original_param = '';
     $scope.notes = '';
     $scope.result = '';
 
-    var unsorted_params = metadata.getAllParams();
-    var params = [];
-    for (var i = 0; i < unsorted_params.length; i++) {
-        var domain = unsorted_params[i];
-
-        var matches = domain.match(/\./g);
-        if (matches != null && matches.length > 1) {
-            var index = domain.lastIndexOf('.');
-
-            var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push({
-                "param": domain,
-                "display": company + ' (' + domain + ')'
-            });
-        }
-        else {
-            params.push({
-                "param": domain,
-                "display": domain
-            });
-        }
-    }
-    $scope.params = params.sort();
+    $scope.params = metadata.getAllParams();
 
     $scope.previousResult = null;
     $scope.loadingPrevious = false;
@@ -262,11 +240,17 @@ angular.module('hash0.controllers', [])
         $location.path('/all');
     };
 
+    $scope.select = function(match) {
+        $scope.param = match.param;
+    };
+
     $scope.generate = function() {
+        $scope.matches = [];
+
         $scope.loading = true;
         $scope.error = false;
 
-        var param = (!$scope.param) ? $scope.manual_param : $scope.param.param;
+        var param = $scope.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
         var length = parseInt($scope.passwordLength);
@@ -274,7 +258,7 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
-        if (!param) {
+        if (param === null || param.length == 0) {
             $scope.loading = false;
             $scope.error = true;
             $scope.errorMessage = "Parameter must be provided";
@@ -436,17 +420,13 @@ angular.module('hash0.controllers', [])
     $scope.showPrevious = function() {
         $scope.loadingPrevious = true;
 
-        var param = (!$scope.param) ? $scope.manual_param : $scope.param.param;
+        var param = $scope.param;
         var symbol = $scope.includeSymbols;
         var notes = $scope.notes;
         var length = parseInt($scope.passwordLength);
         var iterations = null;
         var salt = null;
         var number = 0;
-
-        if (!param) {
-            param = $scope.manual_param;
-        }
 
         var mapping = metadata.findMapping(param);
         if (mapping != null) {
@@ -502,7 +482,10 @@ angular.module('hash0.controllers', [])
         });
     };
 
-    var handleParamChange = function(key) {
+    $scope.$watch('param', function(newVal, oldVal) {
+        $scope.matches = [];
+
+        var key = newVal;
         var mapping = metadata.findMapping(key);
         if (mapping) {
             key = mapping.to;
@@ -522,23 +505,14 @@ angular.module('hash0.controllers', [])
             $scope.toggleNewPassword(false);
 
         } else {
+            if (key.length > 0) {
+                $scope.matches = metadata.findConfigs(key);
+            }
             $scope.notes = '';
             $scope.passwordLength = '30';
             $scope.submitLabel = 'create';
             $scope.toggleNewPassword(true);
         }
-    };
-
-    $scope.$watch('manual_param', function(newVal, oldVal) {
-        handleParamChange(newVal);
-    });
-
-    $scope.$watch('param', function(newVal, oldVal) {
-        var key = newVal ? newVal.param : null;
-        if (key === null) {
-            key = $scope.manual_param;
-        }
-        handleParamChange(key);
     });
 
     function initWithUrl(url) {
@@ -550,39 +524,14 @@ angular.module('hash0.controllers', [])
             domain = '';
         }
 
+        $scope.param = domain;
         $scope.original_param = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
         if (mapping !== null) {
             key = mapping.to;
-
-            found = false;
-            for (var i = 0; i < $scope.params.length; i++) {
-                var entry = $scope.params[i];
-                if (key == entry.param) {
-                    $scope.param = entry;
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                $scope.manual_param = key;
-            }
-        }
-        else {
-            var found = false;
-            for (var i = 0; i < $scope.params.length; i++) {
-                var entry = $scope.params[i];
-                if (domain == entry.param) {
-                    $scope.param = entry;
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                $scope.manual_param = domain;
-            }
+            $scope.param = key;
         }
     }
 
