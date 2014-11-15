@@ -707,15 +707,21 @@ angular.module('hash0.controllers', [])
             var index = domain.lastIndexOf('.');
 
             var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push(company + ' (' + domain + ')');
+            params.push({
+                "param": domain,
+                "display": company + ' (' + domain + ')'
+            });
         }
         else {
-            params.push(domain);
+            params.push({
+                "param": domain,
+                "display": domain
+            });
         }
     }
     $scope.params = params.sort();
     if ($scope.params.length > 0) {
-        $scope.param = $scope.params[0];
+        $scope.selected_param = $scope.params[0];
     }
 
     $scope.cancel = function() {
@@ -732,7 +738,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.removeInternal = function() {
-        metadata.removeConfig($scope.param);
+        metadata.removeConfig($scope.selected_param.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
