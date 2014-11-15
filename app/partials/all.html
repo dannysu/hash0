@@ -1,0 +1,38 @@
+<div class="type-interior ui-page ui-body-b ui-page-active">
+    <div class="ui-header ui-bar-b">
+        <h1 class="ui-title">all passwords</h1>
+    </div><!-- /header -->
+
+    <div class="ui-content ui-body-b">
+        <div class="ui-field-contain ui-body ui-br">
+            <label for="param" class="select ui-select">Parameters:</label>
+            <div class="ui-select">
+                <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+                    <span class="ui-btn-inner ui-btn-corner-all">
+                        <span class="ui-btn-text">{{param}}</span>
+                        <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                        </span>
+                    </span>
+
+                    <select data-ng-model="param" data-ng-options="param for param in params"></select>
+                </div>
+            </div>
+        </div>
+        <div data-ng-show="error">{{errorMessage}}</div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="loading">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                <span class="ui-btn-text">
+                    Cancel
+                </span>
+            </span>
+        </a>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="remove()" data-ng-hide="loading">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                <span class="ui-btn-text">
+                    Remove
+                </span>
+            </span>
+        </a>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+    </div>
+</div>

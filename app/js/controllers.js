@@ -236,6 +236,10 @@ angular.module('hash0.controllers', [])
         $location.path('/mapping');
     };
 
+    $scope.all = function() {
+        $location.path('/all');
+    };
+
     $scope.generate = function() {
         $scope.loading = true;
         $scope.error = false;
@@ -651,6 +655,77 @@ angular.module('hash0.controllers', [])
             else {
                 $scope.remove_loading = false;
                 $scope.remove_error = false;
+                $location.path('/generation');
+            }
+        });
+    };
+}])
+.controller('AllPasswordsCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
+    var unsorted_params = metadata.getAllParams();
+    var params = [];
+    for (var i = 0; i < unsorted_params.length; i++) {
+        var domain = unsorted_params[i];
+
+        var matches = domain.match(/\./g);
+        if (matches != null && matches.length > 1) {
+            var index = domain.lastIndexOf('.');
+
+            var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
+            params.push(company + ' (' + domain + ')');
+        }
+        else {
+            params.push(domain);
+        }
+    }
+    $scope.params = params.sort();
+    if ($scope.params.length > 0) {
+        $scope.param = $scope.params[0];
+    }
+
+    $scope.cancel = function() {
+        $location.path('/generation');
+    };
+
+    $scope.remove = function() {
+        $scope.loading = true;
+        $scope.error = false;
+
+        var confirm_remove = $window.confirm('Remove password for "' + $scope.param + '"?');
+        if (!confirm_remove) {
+            $scope.loading = false;
+            $scope.error = false;
+            return;
+        }
+
+        $timeout(function() {
+            $scope.removeInternal();
+        }, 500, true);
+    };
+
+    $scope.removeInternal = function() {
+        metadata.removeConfig($scope.param);
+
+        var shouldContinueWithSalt = function(salt) {
+            if (salt.type != crypto.generatorTypes.csprng) {
+                var message = "Couldn't get a secure random number generator";
+                $window.alert(message);
+                $scope.loading = false;
+                $scope.error = true;
+                $scope.errorMessage = message;
+                return false;
+            }
+            return true;
+        };
+
+        sync.upload(true, shouldContinueWithSalt, function(err) {
+            if (err) {
+                $scope.loading = false;
+                $scope.error = true;
+                $scope.errorMessage = "Failed to upload metadata.";
+            }
+            else {
+                $scope.loading = false;
+                $scope.error = false;
                 $location.path('/generation');
             }
         });
