@@ -645,15 +645,21 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.remove = function() {
-        $scope.remove_loading = true;
-        $scope.remove_error = false;
-
         if (!$scope.selected_mapping) {
             $scope.remove_loading = false;
             $scope.remove_error = true;
             $scope.remove_errorMessage = 'Please select a mapping.';
             return;
         }
+
+        $scope.confirming = true;
+        $scope.remove_error = false;
+    };
+
+    $scope.confirmRemove = function() {
+        $scope.confirming = false;
+        $scope.remove_loading = true;
+        $scope.remove_error = false;
 
         $timeout(function() {
             $scope.removeInternal();
@@ -722,6 +728,11 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.remove = function() {
+        $scope.confirming = true;
+    };
+
+    $scope.confirmRemove = function() {
+        $scope.confirming = false;
         $scope.loading = true;
         $scope.error = false;
 
