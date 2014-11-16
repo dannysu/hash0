@@ -149,6 +149,28 @@ angular.module('hash0.services', [])
         this.dirty = true;
     };
 
+    Metadata.prototype.makeAllAsHistory = function() {
+        for (var i = 0; i < this.configs.length; i++) {
+            var existingConfig = this.configs[i];
+
+            var newConfig = {
+                'param': existingConfig.param,
+                'salt': existingConfig.salt,
+                'includeSymbols': existingConfig.includeSymbols,
+                'passwordLength': existingConfig.passwordLength,
+                'notes': existingConfig.notes,
+                'iterations': existingConfig.iterations,
+                'number': existingConfig.number
+            };
+
+            newConfig.oldVersions = existingConfig.oldVersions || [];
+            delete existingConfig['oldVersions'];
+            newConfig.oldVersions.push(existingConfig);
+            this.updateConfig(newConfig.param, newConfig);
+        }
+        this.dirty = true;
+    };
+
     Metadata.prototype.addConfig = function(options) {
         var newConfig = {
             'param': options.param,
@@ -365,6 +387,10 @@ angular.module('hash0.services', [])
         this.masterPassword = value;
     };
 
+    Crypto.prototype.passwordDifferent = function(value) {
+        return value != this.masterPassword;
+    };
+
     /*
      * generateSalt
      */
@@ -427,7 +453,12 @@ angular.module('hash0.services', [])
      * generatePassword
      */
     Crypto.prototype.generatePassword = function(options, callback) {
-        if (!this.masterPassword) {
+        var masterPasswordToUse = this.masterPassword;
+        if (options.masterPassword) {
+            masterPasswordToUse = options.masterPassword;
+        }
+
+        if (!masterPasswordToUse) {
             $timeout(function() {
                 callback(null);
             }, 0, true);
@@ -453,7 +484,7 @@ angular.module('hash0.services', [])
             worker.postMessage({
                 salt: options.salt,
                 iterations: options.iterations,
-                masterPassword: this.masterPassword
+                masterPassword: masterPasswordToUse
             });
             worker.onmessage = function(e) {
                 self.onPBKDF2(options, e.data, callback);
@@ -469,7 +500,7 @@ angular.module('hash0.services', [])
             // Convert hex string salt into SJCL's bitArray type.
             // Doing so preserves the range of numbers in the salt.
             var saltBitArray = sjcl.codec.hex.toBits(options.salt);
-            var key = sjcl.misc.pbkdf2(this.masterPassword, saltBitArray, options.iterations, 512);
+            var key = sjcl.misc.pbkdf2(masterPasswordToUse, saltBitArray, options.iterations, 512);
 
             this.onPBKDF2(options, key, callback);
         }

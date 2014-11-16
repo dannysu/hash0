@@ -51,15 +51,13 @@ angular.module('hash0.controllers', [])
     $scope.saveInternal = function() {
         var upload = false;
 
-        // If there are existing settings, then user might be trying to migrate to a different URL.
-        // In that case, prompt and ask.
+        // If there is an existing storage URL, then the user is trying to migrate to a different URL.
         if (metadata.hasStorageUrl()) {
+            upload = true;
 
-            // If there is, then ask whether to migrate data
-            if (confirm('Migrate existing data to new location?')) {
-                // Migrating data is just uploading what's currently there to
-                // another location and with potentially new encryption password
-                upload = true;
+            // Check if user is changing the master password
+            if (crypto.passwordDifferent($scope.masterPassword)) {
+                metadata.makeAllAsHistory();
             }
         }
 
@@ -156,6 +154,7 @@ angular.module('hash0.controllers', [])
     $scope.previousResult = null;
     $scope.loadingPrevious = false;
     $scope.hasPreviousPassword = false;
+    $scope.useDifferentPreviousMasterPassword = false;
 
     $scope.submitLabel = 'generate';
 
@@ -202,6 +201,10 @@ angular.module('hash0.controllers', [])
             $scope.symbolOnStyle = {'width': '0%'};
             $scope.symbolOffStyle = {'width': '100%'};
         }
+    };
+
+    $scope.toggleUseDifferentPreviousMasterPassword = function() {
+        $scope.useDifferentPreviousMasterPassword = !$scope.useDifferentPreviousMasterPassword;
     };
 
     $scope.toggleNewPassword = function(value) {
@@ -464,14 +467,21 @@ angular.module('hash0.controllers', [])
             number = config.number;
         }
 
-        crypto.generatePassword({
+        var args = {
             includeSymbols: symbol,
             passwordLength: length,
             iterations: iterations,
             param: param,
             number: number,
             salt: salt
-        }, function(password) {
+        };
+
+        if ($scope.useDifferentPreviousMasterPassword) {
+            args.masterPassword = $scope.previousMasterPassword;
+            delete $scope.previousMasterPassword;
+        }
+
+        crypto.generatePassword(args, function(password) {
             if (password) {
                 $scope.previousResult = password.password;
             }
