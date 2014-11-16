@@ -51,15 +51,13 @@ angular.module('hash0.controllers', [])
     $scope.saveInternal = function() {
         var upload = false;
 
-        // If there are existing settings, then user might be trying to migrate to a different URL.
-        // In that case, prompt and ask.
+        // If there is an existing storage URL, then the user is trying to migrate to a different URL.
         if (metadata.hasStorageUrl()) {
+            upload = true;
 
-            // If there is, then ask whether to migrate data
-            if (confirm('Migrate existing data to new location?')) {
-                // Migrating data is just uploading what's currently there to
-                // another location and with potentially new encryption password
-                upload = true;
+            // Check if user is changing the master password
+            if (crypto.passwordDifferent($scope.masterPassword)) {
+                metadata.makeAllAsHistory();
             }
         }
 
@@ -151,27 +149,12 @@ angular.module('hash0.controllers', [])
     $scope.notes = '';
     $scope.result = '';
 
-    var unsorted_params = metadata.getAllParams();
-    var params = [];
-    for (var i = 0; i < unsorted_params.length; i++) {
-        var domain = unsorted_params[i];
-
-        var matches = domain.match(/\./g);
-        if (matches != null && matches.length > 1) {
-            var index = domain.lastIndexOf('.');
-
-            var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push(company + ' (' + domain + ')');
-        }
-        else {
-            params.push(domain);
-        }
-    }
-    $scope.params = params.sort();
+    $scope.params = metadata.getAllParams();
 
     $scope.previousResult = null;
     $scope.loadingPrevious = false;
     $scope.hasPreviousPassword = false;
+    $scope.useDifferentPreviousMasterPassword = false;
 
     $scope.submitLabel = 'generate';
 
@@ -220,6 +203,10 @@ angular.module('hash0.controllers', [])
         }
     };
 
+    $scope.toggleUseDifferentPreviousMasterPassword = function() {
+        $scope.useDifferentPreviousMasterPassword = !$scope.useDifferentPreviousMasterPassword;
+    };
+
     $scope.toggleNewPassword = function(value) {
         if (arguments.length > 0) {
             $scope.generateNewPassword = value;
@@ -256,7 +243,13 @@ angular.module('hash0.controllers', [])
         $location.path('/all');
     };
 
+    $scope.select = function(match) {
+        $scope.param = match.param;
+    };
+
     $scope.generate = function() {
+        $scope.matches = [];
+
         $scope.loading = true;
         $scope.error = false;
 
@@ -268,15 +261,11 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
-        if (!param) {
-            param = $scope.manual_param;
-
-            if (!param) {
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = "Parameter must be provided";
-                return;
-            }
+        if (param === null || param.length == 0) {
+            $scope.loading = false;
+            $scope.error = true;
+            $scope.errorMessage = "Parameter must be provided";
+            return;
         }
 
         $scope.previousResult = null;
@@ -442,10 +431,6 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
-        if (!param) {
-            param = $scope.manual_param;
-        }
-
         var mapping = metadata.findMapping(param);
         if (mapping != null) {
             param = mapping.to;
@@ -482,14 +467,21 @@ angular.module('hash0.controllers', [])
             number = config.number;
         }
 
-        crypto.generatePassword({
+        var args = {
             includeSymbols: symbol,
             passwordLength: length,
             iterations: iterations,
             param: param,
             number: number,
             salt: salt
-        }, function(password) {
+        };
+
+        if ($scope.useDifferentPreviousMasterPassword) {
+            args.masterPassword = $scope.previousMasterPassword;
+            delete $scope.previousMasterPassword;
+        }
+
+        crypto.generatePassword(args, function(password) {
             if (password) {
                 $scope.previousResult = password.password;
             }
@@ -500,7 +492,10 @@ angular.module('hash0.controllers', [])
         });
     };
 
-    var handleParamChange = function(key) {
+    $scope.$watch('param', function(newVal, oldVal) {
+        $scope.matches = [];
+
+        var key = newVal;
         var mapping = metadata.findMapping(key);
         if (mapping) {
             key = mapping.to;
@@ -520,23 +515,14 @@ angular.module('hash0.controllers', [])
             $scope.toggleNewPassword(false);
 
         } else {
+            if (key.length > 0) {
+                $scope.matches = metadata.findConfigs(key);
+            }
             $scope.notes = '';
             $scope.passwordLength = '30';
             $scope.submitLabel = 'create';
             $scope.toggleNewPassword(true);
         }
-    };
-
-    $scope.$watch('manual_param', function(newVal, oldVal) {
-        handleParamChange(newVal);
-    });
-
-    $scope.$watch('param', function(newVal, oldVal) {
-        var key = newVal;
-        if (key === null) {
-            key = $scope.manual_param;
-        }
-        handleParamChange(key);
     });
 
     function initWithUrl(url) {
@@ -548,39 +534,14 @@ angular.module('hash0.controllers', [])
             domain = '';
         }
 
-        var found = false;
-        for (var i = 0; i < $scope.params.length; i++) {
-            if (domain == $scope.params[i].param) {
-                found = true;
-            }
-        }
-
-        if (found) {
-            $scope.param = domain;
-        }
-        else {
-            $scope.manual_param = domain;
-        }
+        $scope.param = domain;
         $scope.original_param = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
         if (mapping !== null) {
             key = mapping.to;
-
-            found = false;
-            for (var i = 0; i < $scope.params.length; i++) {
-                if (key == $scope.params[i].param) {
-                    found = true;
-                }
-            }
-
-            if (found) {
-                $scope.param = key;
-            }
-            else {
-                $scope.manual_param = key;
-            }
+            $scope.param = key;
         }
     }
 
@@ -603,7 +564,7 @@ angular.module('hash0.controllers', [])
 }])
 .controller('MappingCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
     $scope.from = '';
-    $scope.to = '';
+    $scope.to = null;
 
     var unsorted_params = metadata.getAllParams();
     var params = [];
@@ -615,10 +576,16 @@ angular.module('hash0.controllers', [])
             var index = domain.lastIndexOf('.');
 
             var company = domain.substring(domain.lastIndexOf('.', index - 1) + 1);
-            params.push(company + ' (' + domain + ')');
+            params.push({
+                "param": domain,
+                "display": company + ' (' + domain + ')'
+            });
         }
         else {
-            params.push(domain);
+            params.push({
+                "param": domain,
+                "display": domain
+            });
         }
     }
     $scope.params = params.sort();
@@ -649,7 +616,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.saveInternal = function() {
-        metadata.addMapping($scope.from, $scope.to);
+        metadata.addMapping($scope.from, $scope.to.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
@@ -678,15 +645,21 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.remove = function() {
-        $scope.remove_loading = true;
-        $scope.remove_error = false;
-
         if (!$scope.selected_mapping) {
             $scope.remove_loading = false;
             $scope.remove_error = true;
             $scope.remove_errorMessage = 'Please select a mapping.';
             return;
         }
+
+        $scope.confirming = true;
+        $scope.remove_error = false;
+    };
+
+    $scope.confirmRemove = function() {
+        $scope.confirming = false;
+        $scope.remove_loading = true;
+        $scope.remove_error = false;
 
         $timeout(function() {
             $scope.removeInternal();
@@ -755,6 +728,11 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.remove = function() {
+        $scope.confirming = true;
+    };
+
+    $scope.confirmRemove = function() {
+        $scope.confirming = false;
         $scope.loading = true;
         $scope.error = false;
 

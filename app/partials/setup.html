@@ -5,14 +5,18 @@
 
     <div class="ui-content ui-body-b">
         <div data-ng-hide="firstTime">
-            You can change where metadata are stored by entering the master password again and enter a different storage URL.
+            You can change where metadata are stored by entering a new master password (if you want) and enter a different storage URL.
+            <br/>
+            <br/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
-            <label class="ui-input-text">Master password:</label>
+            <label class="ui-input-text" data-ng-hide="firstTime">New Master password:</label>
+            <label class="ui-input-text" data-ng-show="firstTime">Master password:</label>
             <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="masterPassword"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
-            <label class="ui-input-text">Storage URL:</label>
+            <label class="ui-input-text" data-ng-hide="firstTime">New Storage URL:</label>
+            <label class="ui-input-text" data-ng-show="firstTime">Storage URL:</label>
             <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="storageUrl"/>
         </div>
         <div data-ng-show="error">{{errorMessage}}</div>

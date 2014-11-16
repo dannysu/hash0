@@ -6,21 +6,19 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="param" class="ui-input-text">Parameter:</label>
-            <div class="ui-select">
-                <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
+            <input type="text" autocorrect="off" autocapitalize="off" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="param"/>
+            <div data-ng-repeat="match in matches track by match.param" data-ng-hide="loading">
+                <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b ui-btn-input-like">
                     <span class="ui-btn-inner ui-btn-corner-all">
-                        <span class="ui-btn-text">{{param || '-- add new --'}}</span>
-                        <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
+                        <span class="ui-btn-text">
+                            {{match.param}}
                         </span>
                     </span>
-
-                    <select data-ng-model="param" data-ng-options="param for param in params">
-                        <option value="">-- add new --</option>
-                    </select>
+                    <button class="ui-btn-hidden" data-ng-click="select(match)">
+                        {{match.param}}
+                    </button>
                 </div>
             </div>
-            <br data-ng-show="param === null || param.length == 0"/>
-            <input type="text" autocorrect="off" autocapitalize="off" name="manual_param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="manual_param" data-ng-show="param === null || param.length == 0"/>
         </div>
 
         <br/>
@@ -162,6 +160,24 @@
                     <div data-ng-show="hasPreviousPassword">
                         <br>
                         <label for="output" class="ui-input-text">Previous Password:</label>
+
+                        <div class="ui-field-contain ui-body ui-br" data-ng-hide="useDifferentPreviousMasterPassword || loadingPrevious || previousResult">
+                            <fieldset class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
+                                <div class="ui-controlgroup-controls">
+                                    <div class="ui-checkbox">
+                                        <input name="checkbox-6" id="checkbox-6" class="custom" type="checkbox" data-ng-modal="useDifferentPreviousMasterPassword">
+                                        <label class="ui-btn ui-corner-left ui-checkbox-off ui-btn-up-b" for="checkbox-6" data-ng-click="toggleUseDifferentPreviousMasterPassword()">
+                                            <div class="ui-btn-inner ui-corner-left">
+                                                <span class="ui-btn-text nowrap" style="white-space:nowrap">Different Master Password?</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+        
+                        <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="previousMasterPassword" data-ng-show="useDifferentPreviousMasterPassword && !(loadingPrevious || previousResult)"/>
+
                         <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="showPrevious()" data-ng-hide="loadingPrevious || previousResult">
                             <span class="ui-btn-inner ui-btn-corner-all">
                                 <span class="ui-btn-text">
