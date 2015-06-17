@@ -231,6 +231,9 @@ angular.module('hash0.services', [])
     function Synchronization() {
     }
 
+    var aes_key_size = 256;
+    var aes_tag_size = 128;
+
     Synchronization.prototype.upload = function(forceUpdate, shouldContinueWithSalt, callback) {
 
         if (!metadata.hasStorageUrl()) {
@@ -263,7 +266,13 @@ angular.module('hash0.services', [])
                 return callback('Failed to generate password');
             }
 
-            var encrypted = sjcl.encrypt(password.password, data);
+            // Encrypt using AES 256
+            var encrypt_params = {
+                ks: aes_key_size,
+                ts: aes_tag_size
+            };
+
+            var encrypted = sjcl.encrypt(password.password, data, encrypt_params);
             encrypted = JSON.parse(encrypted);
 
             // Store the salt used and # of iterations used

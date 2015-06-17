@@ -42,9 +42,10 @@ Hash0 also borrows some functions from [PasswordMaker.org][1] when converting
 generated result to the desired charset.
 
 Finally, the salt and different site configurations are encrypted using SJCL's
-encrypt() function and stored at a place of user's choosing. Storing these
-settings remotely in encrypted form allows Hash0 to be used across different
-devices.
+encrypt() function, which uses AES-CCM with 256-bit key size and 128-bit
+authentication tag size. The encrypted data is then stored at a place of user's
+choosing. Storing these settings remotely in encrypted form allows Hash0 to be
+used across different devices.
 
 Pros:
 
