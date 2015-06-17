@@ -1,7 +1,7 @@
 {
   "name": "hash0",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.2",
   "description": "Synchronizable PBKDF2 based password generator",
   "repository": "https://github.com/dannysu/hash0",
   "license": "MIT",

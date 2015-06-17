@@ -6,7 +6,8 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('hash0.services', [])
-.value('version', '2.0')
+.value('version', '2.1.2')
+.value('version_num', 1)
 
 /*
  * Metadata service - local cache of metadata
@@ -227,7 +228,7 @@ angular.module('hash0.services', [])
 /*
  * Synchronization service - upload or download metadata to provided storage URL
  */
-.factory('sync', ['$window', '$http', 'metadata', 'crypto', function($window, $http, metadata, crypto) {
+.factory('sync', ['$window', '$http', 'metadata', 'crypto', 'version', 'version_num', function($window, $http, metadata, crypto, version, version_num) {
     function Synchronization() {
     }
 
@@ -280,6 +281,8 @@ angular.module('hash0.services', [])
             encrypted.hash0 = {};
             encrypted.hash0.salt = salt;
             encrypted.hash0.iterations = password.iterations;
+            encrypted.hash0.version = version;
+            encrypted.hash0.version_num = version_num;
 
             $http.post(metadata.getStorageUrl(), JSON.stringify(encrypted)).
                 success(function(data, status, headers, config) {
