@@ -1,7 +1,7 @@
 {
   "name": "hash0",
   "version": "2.1.2",
-  "manifest_version": 3,
+  "manifest_version": 2,
   "description": "Synchronizable PBKDF2 based password generator",
   "browser_action": {
     "default_icon": "icons/icon64x64.png",
