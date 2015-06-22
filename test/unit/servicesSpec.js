@@ -83,6 +83,33 @@ describe('service', function() {
             }));
         });
 
+        describe('getAllMappings', function() {
+            beforeEach(inject(function(metadata) {
+                metadata.addMapping('from1', 'to1');
+                metadata.addMapping('from2', 'to2');
+            }));
+            
+            it('should return all mappings', inject(function(metadata) {
+                var mappings = metadata.getAllMappings();
+                expect(mappings.length).toBe(2);
+                expect(mappings[0].from).toBe('from1');
+                expect(mappings[0].to).toBe('to1');
+                expect(mappings[1].from).toBe('from2');
+                expect(mappings[1].to).toBe('to2');
+            }));
+
+            it('should not be able to modify mappings', inject(function(metadata) {
+                var mappings = metadata.getAllMappings();
+                mappings.push({
+                    from: 'from3',
+                    to: 'to3'
+                });
+
+                mappings = metadata.getAllMappings();
+                expect(mappings.length).toBe(2);
+            }));
+        });
+
         describe('addConfig', function() {
             beforeEach(inject(function(metadata) {
                 metadata.addConfig({

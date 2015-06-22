@@ -49,15 +49,12 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.getAllMappings = function() {
-        var mappings = [];
-        for (var i = 0; i < this.mappings.length; i++) {
-            var mapping = this.mappings[i];
-            mappings.push({
+        return this.mappings.map(function(mapping) {
+            return {
                 from: mapping.from,
                 to: mapping.to
-            });
-        }
-        return mappings;
+            };
+        });
     };
 
     Metadata.prototype.findConfig = function(param, partial_match) {
