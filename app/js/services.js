@@ -16,8 +16,8 @@ angular.module('hash0.services', [])
     var storage = $window.localStorage;
 
     function Metadata() {
-        this.configs = new Array();
-        this.mappings = new Array();
+        this.configs = [];
+        this.mappings = [];
         this.dirty = false;
     }
 
@@ -377,10 +377,10 @@ angular.module('hash0.services', [])
  * Crypto service - provides functions that generate salt or password
  */
 .factory('crypto', ['$window', '$timeout', function($window, $timeout) {
-    var charsets = new Array(
+    var charsets = [
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`~!@#$%^&*()_-+={}|[]\\:\";'<>?,./"
-    );
+    ];
 
     function Crypto() {
         this.enableWebWorkers = true;
