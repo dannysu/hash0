@@ -30,11 +30,7 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.hasStorageUrl = function() {
-        if (!(storage['storageUrl']) ||
-            storage['storageUrl'] == '') {
-            return false;
-        }
-        return true;
+        return Boolean(storage.storageUrl);
     };
 
     Metadata.prototype.updateConfig = function(param, config) {
