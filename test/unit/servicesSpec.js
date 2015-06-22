@@ -23,7 +23,13 @@ describe('service', function() {
 
     describe('version', function() {
         it('should return current version', inject(function(version) {
-            expect(version).toEqual('2.0');
+            expect(version).toEqual('2.1.2');
+        }));
+    });
+
+    describe('version_num', function() {
+        it('should return current version_num', inject(function(version_num) {
+            expect(version_num).toEqual(1);
         }));
     });
 
