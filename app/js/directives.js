@@ -12,11 +12,11 @@ angular.module('hash0.directives', [])
 .directive('metroTextField', [function() {
     return function(scope, elm, attrs) {
         elm.on('focus', function(event) {
-            elm.addClass('ui-focus');
+            angular.element(this).addClass('ui-focus');
         });
 
         elm.on('blur', function(event) {
-            elm.removeClass('ui-focus');
+            angular.element(this).removeClass('ui-focus');
         });
     };
 }])
