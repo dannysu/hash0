@@ -58,8 +58,6 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.findConfig = function(param, partial_match) {
-        partial_match = partial_match || false;
-
         for (var i = 0; i < this.configs.length; i++) {
             if (this.configs[i].param == param) {
                 return this.configs[i];
