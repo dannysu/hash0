@@ -193,6 +193,33 @@ describe('service', function() {
                 expect(params[1]).toBe('param2');
             }));
         });
+
+        describe('findConfigs', function() {
+            beforeEach(inject(function(metadata) {
+                metadata.addConfig({
+                    param: 'param1',
+                    salt: 'saltysnacks',
+                    number: 1,
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    notes: 'note to self'
+                });
+
+                metadata.addConfig({
+                    param: 'param2',
+                    salt: 'saltysnacks',
+                    number: 1,
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    notes: 'note to self'
+                });
+            }));
+            
+            it('should return all configs with partial match on param', inject(function(metadata) {
+                var configs = metadata.findConfigs('ram');
+                expect(configs.length).toBe(2);
+            }));
+        });
     });
 
     describe('crypto', function() {
