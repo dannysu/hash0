@@ -47,11 +47,9 @@ angular.module('hash0.services', [])
     };
 
     Metadata.prototype.getAllParams = function() {
-        var params = [];
-        for (var i = 0; i < this.configs.length; i++) {
-            params.push(this.configs[i].param);
-        }
-        return params;
+        return this.configs.map(function(config) {
+            return config.param;
+        });
     };
 
     Metadata.prototype.getAllMappings = function() {

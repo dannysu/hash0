@@ -137,6 +137,35 @@ describe('service', function() {
                 expect(metadata.stringify()).toBe('{"mappings":[],"configs":[]}');
             }));
         });
+
+        describe('getAllParams', function() {
+            beforeEach(inject(function(metadata) {
+                metadata.addConfig({
+                    param: 'param1',
+                    salt: 'saltysnacks',
+                    number: 1,
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    notes: 'note to self'
+                });
+
+                metadata.addConfig({
+                    param: 'param2',
+                    salt: 'saltysnacks',
+                    number: 1,
+                    includeSymbols: true,
+                    passwordLength: 20,
+                    notes: 'note to self'
+                });
+            }));
+            
+            it('should return all params', inject(function(metadata) {
+                var params = metadata.getAllParams();
+                expect(params.length).toBe(2);
+                expect(params[0]).toBe('param1');
+                expect(params[1]).toBe('param2');
+            }));
+        });
     });
 
     describe('crypto', function() {
