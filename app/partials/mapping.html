@@ -6,43 +6,43 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="map_from" class="ui-input-text">From:</label>
-            <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="from"/>
+            <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="mapping.from"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
             <label for="map_to" class="select ui-select">To:</label>
             <div class="ui-select">
                 <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
                     <span class="ui-btn-inner ui-btn-corner-all">
-                        <span class="ui-btn-text">{{to ? to.display : '-- choose target --'}}</span>
+                        <span class="ui-btn-text">{{mapping.to ? mapping.to.display : '-- choose target --'}}</span>
                         <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
                         </span>
                     </span>
 
-                    <select data-ng-model="to" data-ng-options="param.display for param in params">
+                    <select data-ng-model="mapping.to" data-ng-options="param.display for param in mapping.params">
                         <option value="">-- choose target --</option>
                     </select>
                 </div>
             </div>
         </div>
-        <div data-ng-show="error">{{errorMessage}}</div>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="loading">
+        <div data-ng-show="mapping.error">{{mapping.errorMessage}}</div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping.cancel()" data-ng-hide="mapping.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Cancel
                 </span>
             </span>
         </a>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading">
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping.save()" data-ng-hide="mapping.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Save
                 </span>
             </span>
         </a>
-        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="mapping.loading"/>
     </div>
 
-    <div data-ng-show="mappings.length > 0">
+    <div data-ng-show="mapping.mappings.length > 0">
         <div class="ui-header ui-bar-b">
             <h1 class="ui-title">remove mapping</h1>
         </div><!-- /header -->
@@ -51,29 +51,29 @@
             <div class="ui-select">
                 <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
                     <span class="ui-btn-inner ui-btn-corner-all">
-                        <span class="ui-btn-text">{{selectedMapping ? selectedMapping.label : '-- choose mapping --'}}</span>
+                        <span class="ui-btn-text">{{mapping.selectedMapping ? mapping.selectedMapping.label : '-- choose mapping --'}}</span>
                         <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
                         </span>
                     </span>
 
-                    <select data-ng-model="selectedMapping" data-ng-options="mapping.label for mapping in mappings">
+                    <select data-ng-model="mapping.selectedMapping" data-ng-options="mapping.label for mapping in mapping.mappings">
                         <option value="">-- choose mapping --</option>
                     </select>
                 </div>
             </div>
 
-            <div data-ng-show="removeError">{{removeErrorMessage}}</div>
-            <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="remove()" data-ng-hide="removeLoading || confirming">
+            <div data-ng-show="mapping.removeError">{{mapping.removeErrorMessage}}</div>
+            <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping.remove()" data-ng-hide="mapping.removeLoading || mapping.confirming">
                 <span class="ui-btn-inner ui-btn-corner-all">
                     <span class="ui-btn-text">
                         Remove
                     </span>
                 </span>
             </a>
-            <div class="ui-field-contain ui-body ui-br" data-ng-show="confirming">
+            <div class="ui-field-contain ui-body ui-br" data-ng-show="mapping.confirming">
                 <label for="param" class="select ui-select">Confirm Removal:</label>
             </div>
-            <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="confirmRemove()" data-ng-show="confirming && !removeLoading">
+            <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping.confirmRemove()" data-ng-show="mapping.confirming && !mapping.removeLoading">
                 <span class="ui-btn-inner ui-btn-corner-all">
                     <span class="ui-btn-text">
                         Remove
@@ -81,7 +81,7 @@
                 </span>
             </a>
             <br/>
-            <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="removeLoading"/>
+            <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="mapping.removeLoading"/>
         </div>
     </div>
 </div>

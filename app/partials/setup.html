@@ -4,36 +4,36 @@
     </div><!-- /header -->
 
     <div class="ui-content ui-body-b">
-        <div data-ng-hide="firstTime">
+        <div data-ng-hide="setup.firstTime">
             You can change where metadata are stored by entering a new master password (if you want) and enter a different storage URL.
             <br/>
             <br/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
-            <label class="ui-input-text" data-ng-hide="firstTime">New Master password:</label>
-            <label class="ui-input-text" data-ng-show="firstTime">Master password:</label>
-            <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="masterPassword"/>
+            <label class="ui-input-text" data-ng-hide="setup.firstTime">New Master password:</label>
+            <label class="ui-input-text" data-ng-show="setup.firstTime">Master password:</label>
+            <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="setup.masterPassword"/>
         </div>
         <div class="ui-field-contain ui-body ui-br">
-            <label class="ui-input-text" data-ng-hide="firstTime">New Storage URL:</label>
-            <label class="ui-input-text" data-ng-show="firstTime">Storage URL:</label>
-            <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="storageUrl"/>
+            <label class="ui-input-text" data-ng-hide="setup.firstTime">New Storage URL:</label>
+            <label class="ui-input-text" data-ng-show="setup.firstTime">Storage URL:</label>
+            <input type="text" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="setup.storageUrl"/>
         </div>
-        <div data-ng-show="error">{{errorMessage}}</div>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="cancel()" data-ng-hide="firstTime || loading">
+        <div data-ng-show="setup.error">{{setup.errorMessage}}</div>
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="setup.cancel()" data-ng-hide="setup.firstTime || loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Cancel
                 </span>
             </span>
         </a>
-        <a id="save" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="save()" data-ng-hide="loading || !storageUrl || !masterPassword">
+        <a id="save" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="setup.save()" data-ng-hide="setup.loading || !setup.storageUrl || !setup.masterPassword">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Save
                 </span>
             </span>
         </a>
-        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="setup.loading"/>
     </div>
 </div>

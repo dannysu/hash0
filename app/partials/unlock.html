@@ -6,23 +6,23 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label style="width:100%" for="master" class="ui-input-text">Master password:</label>
-            <input type="password" name="master" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="masterPassword"/>
+            <input type="password" name="master" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="unlock.masterPassword"/>
         </div>
-        <div data-ng-show="error">{{errorMessage}}</div>
-        <a id="next" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="next()" data-ng-hide="loading">
+        <div data-ng-show="unlock.error">{{unlock.errorMessage}}</div>
+        <a id="next" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="unlock.next()" data-ng-hide="unlock.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Next
                 </span>
             </span>
         </a>
-        <a id="reset" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="reset()" data-ng-hide="loading">
+        <a id="reset" class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="unlock.reset()" data-ng-hide="unlock.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Reset
                 </span>
             </span>
         </a>
-        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="unlock.loading"/>
     </div>
 </div>

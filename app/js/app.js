@@ -10,12 +10,54 @@ angular.module('hash0', [
     'hash0.controllers'
 ]).
 config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/dispatcher', {templateUrl: 'partials/dispatcher.html', controller: 'DispatcherController'});
-    $routeProvider.when('/setup', {templateUrl: 'partials/setup.html', controller: 'SetupController'});
-    $routeProvider.when('/unlock', {templateUrl: 'partials/unlock.html', controller: 'UnlockController'});
-    $routeProvider.when('/mapping', {templateUrl: 'partials/mapping.html', controller: 'MappingController'});
-    $routeProvider.when('/all', {templateUrl: 'partials/all.html', controller: 'AllPasswordsController'});
-    $routeProvider.when('/generation', {templateUrl: 'partials/generation.html', controller: 'GenerationController'});
-    $routeProvider.when('/test', {templateUrl: 'partials/test.html', controller: 'TestController'});
+    $routeProvider
+        .when('/dispatcher', {
+            templateUrl: 'partials/dispatcher.html',
+            controllerAs: 'dispatch',
+            controller: 'DispatcherController'
+        });
+
+    $routeProvider
+        .when('/setup', {
+            templateUrl: 'partials/setup.html',
+            controllerAs: 'setup',
+            controller: 'SetupController'
+        });
+
+    $routeProvider
+        .when('/unlock', {
+            templateUrl: 'partials/unlock.html',
+            controllerAs: 'unlock',
+            controller: 'UnlockController'
+        });
+
+    $routeProvider
+        .when('/mapping', {
+            templateUrl: 'partials/mapping.html',
+            controllerAs: 'mapping',
+            controller: 'MappingController'
+        });
+
+    $routeProvider
+        .when('/all', {
+            templateUrl: 'partials/all.html',
+            controllerAs: 'all',
+            controller: 'AllPasswordsController'
+        });
+
+    $routeProvider
+        .when('/generation', {
+            templateUrl: 'partials/generation.html',
+            controllerAs: 'generation',
+            controller: 'GenerationController'
+        });
+
+    $routeProvider
+        .when('/test', {
+            templateUrl: 'partials/test.html',
+            controllerAs: 'test',
+            controller: 'TestController'
+        });
+
     $routeProvider.otherwise({redirectTo: '/dispatcher'});
 }]);

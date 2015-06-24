@@ -28,28 +28,30 @@ angular.module('hash0.controllers', [])
 
     redirect();
 }])
-.controller('SetupController', ['$scope', '$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($scope, $window, $location, $timeout, metadata, sync, crypto) {
-    $scope.masterPassword = '';
-    $scope.storageUrl = '';
-    $scope.firstTime = true;
+.controller('SetupController', ['$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($window, $location, $timeout, metadata, sync, crypto) {
+    var vm = this;
+
+    vm.masterPassword = '';
+    vm.storageUrl = '';
+    vm.firstTime = true;
     if (metadata.hasStorageUrl()) {
-        $scope.firstTime = false;
+        vm.firstTime = false;
     }
 
-    $scope.cancel = function() {
+    vm.cancel = function() {
         $location.path('/generation');
     };
 
-    $scope.save = function() {
-        $scope.loading = true;
-        $scope.error = false;
+    vm.save = function() {
+        vm.loading = true;
+        vm.error = false;
 
         $timeout(function() {
-            $scope.saveInternal();
+            vm.saveInternal();
         }, 500, true);
     };
 
-    $scope.saveInternal = function() {
+    vm.saveInternal = function() {
         var upload = false;
 
         // If there is an existing storage URL, then the user is trying to migrate to a different URL.
@@ -57,13 +59,13 @@ angular.module('hash0.controllers', [])
             upload = true;
 
             // Check if user is changing the master password
-            if (crypto.passwordDifferent($scope.masterPassword)) {
+            if (crypto.passwordDifferent(vm.masterPassword)) {
                 metadata.makeAllAsHistory();
             }
         }
 
-        crypto.setMasterPassword($scope.masterPassword);
-        metadata.setStorageUrl($scope.storageUrl);
+        crypto.setMasterPassword(vm.masterPassword);
+        metadata.setStorageUrl(vm.storageUrl);
 
         if (upload) {
             var shouldContinueWithSalt = function(salt) {
@@ -76,13 +78,13 @@ angular.module('hash0.controllers', [])
 
             sync.upload(true, shouldContinueWithSalt, function(err) {
                 if (err) {
-                    $scope.loading = false;
-                    $scope.error = true;
-                    $scope.errorMessage = "Failed to migrate metadata.";
+                    vm.loading = false;
+                    vm.error = true;
+                    vm.errorMessage = "Failed to migrate metadata.";
                 }
                 else {
-                    $scope.loading = false;
-                    $scope.error = false;
+                    vm.loading = false;
+                    vm.error = false;
                     $location.path('/generation');
                 }
             });
@@ -90,188 +92,192 @@ angular.module('hash0.controllers', [])
         else {
             sync.download(function(err) {
                 if (err) {
-                    $scope.loading = false;
-                    $scope.error = true;
-                    $scope.errorMessage = err;
+                    vm.loading = false;
+                    vm.error = true;
+                    vm.errorMessage = err;
                 }
                 else {
-                    $scope.loading = false;
-                    $scope.error = false;
+                    vm.loading = false;
+                    vm.error = false;
                     $location.path('/generation');
                 }
             });
         }
     };
 }])
-.controller('UnlockController', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($scope, $location, $timeout, crypto, sync, metadata, $window) {
-    $scope.masterPassword = '';
+.controller('UnlockController', ['$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($location, $timeout, crypto, sync, metadata, $window) {
+    var vm = this;
+
+    vm.masterPassword = '';
 
     if ($window.addon) {
         $window.addon.port.on('wipe', function() {
             crypto.setMasterPassword(null);
-            $scope.masterPassword = '';
+            vm.masterPassword = '';
         });
     }
 
-    $scope.next = function() {
-        crypto.setMasterPassword($scope.masterPassword);
+    vm.next = function() {
+        crypto.setMasterPassword(vm.masterPassword);
 
-        $scope.loading = true;
-        $scope.error = false;
+        vm.loading = true;
+        vm.error = false;
 
         $timeout(function() {
-            $scope.nextInternal();
+            vm.nextInternal();
         }, 500, true);
     };
 
-    $scope.reset = function() {
+    vm.reset = function() {
         metadata.setStorageUrl('');
         $location.path('/setup');
     };
 
-    $scope.nextInternal = function() {
+    vm.nextInternal = function() {
         sync.download(function(err) {
             if (err) {
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = "Failed to download metadata. Perhaps you typed in the wrong password?";
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = "Failed to download metadata. Perhaps you typed in the wrong password?";
             }
             else {
-                $scope.loading = false;
-                $scope.error = false;
+                vm.loading = false;
+                vm.error = false;
                 $location.path('/generation');
             }
         });
     };
 }])
 .controller('GenerationController', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
-    $scope.param = '';
-    $scope.originalParam = '';
-    $scope.notes = '';
-    $scope.result = '';
+    var vm = this;
 
-    $scope.params = metadata.getAllParams();
+    vm.param = '';
+    vm.originalParam = '';
+    vm.notes = '';
+    vm.result = '';
 
-    $scope.previousResult = null;
-    $scope.loadingPrevious = false;
-    $scope.hasPreviousPassword = false;
-    $scope.useDifferentPreviousMasterPassword = false;
+    vm.params = metadata.getAllParams();
 
-    $scope.submitLabel = 'generate';
+    vm.previousResult = null;
+    vm.loadingPrevious = false;
+    vm.hasPreviousPassword = false;
+    vm.useDifferentPreviousMasterPassword = false;
 
-    $scope.configCollapsed = true;
-    $scope.resultCollapsed = true;
+    vm.submitLabel = 'generate';
+
+    vm.configCollapsed = true;
+    vm.resultCollapsed = true;
 
     // default password length to 30
-    $scope.passwordLength = '30';
+    vm.passwordLength = '30';
 
     // include symbols in passwords by default
-    $scope.includeSymbols = true;
-    $scope.symbolSelection = 'on';
-    $scope.symbolOnStyle = {'width': '100%'};
-    $scope.symbolOffStyle = {'width': '0%'};
-    $scope.symbolHandleStyle = {'left': '100%'};
+    vm.includeSymbols = true;
+    vm.symbolSelection = 'on';
+    vm.symbolOnStyle = {'width': '100%'};
+    vm.symbolOffStyle = {'width': '0%'};
+    vm.symbolHandleStyle = {'left': '100%'};
 
-    $scope.generateNewPassword = true;
-    $scope.newPasswordSelection = 'on';
-    $scope.newPasswordOnStyle = {'width': '100%'};
-    $scope.newPasswordOffStyle = {'width': '0%'};
-    $scope.newPasswordHandleStyle = {'left': '100%'};
+    vm.generateNewPassword = true;
+    vm.newPasswordSelection = 'on';
+    vm.newPasswordOnStyle = {'width': '100%'};
+    vm.newPasswordOffStyle = {'width': '0%'};
+    vm.newPasswordHandleStyle = {'left': '100%'};
 
-    $scope.toggleConfig = function() {
-        $scope.configCollapsed = !$scope.configCollapsed;
+    vm.toggleConfig = function() {
+        vm.configCollapsed = !vm.configCollapsed;
     };
 
-    $scope.toggleSymbols = function(value) {
+    vm.toggleSymbols = function(value) {
         if (arguments.length > 0) {
-            $scope.includeSymbols = value;
+            vm.includeSymbols = value;
         }
         else {
-            $scope.includeSymbols = !$scope.includeSymbols;
+            vm.includeSymbols = !vm.includeSymbols;
         }
 
-        if ($scope.includeSymbols) {
-            $scope.symbolSelection = 'on';
-            $scope.symbolHandleStyle = {'left': '100%'};
-            $scope.symbolOnStyle = {'width': '100%'};
-            $scope.symbolOffStyle = {'width': '0%'};
+        if (vm.includeSymbols) {
+            vm.symbolSelection = 'on';
+            vm.symbolHandleStyle = {'left': '100%'};
+            vm.symbolOnStyle = {'width': '100%'};
+            vm.symbolOffStyle = {'width': '0%'};
         }
         else {
-            $scope.symbolSelection = 'off';
-            $scope.symbolHandleStyle = {'left': '0%'};
-            $scope.symbolOnStyle = {'width': '0%'};
-            $scope.symbolOffStyle = {'width': '100%'};
+            vm.symbolSelection = 'off';
+            vm.symbolHandleStyle = {'left': '0%'};
+            vm.symbolOnStyle = {'width': '0%'};
+            vm.symbolOffStyle = {'width': '100%'};
         }
     };
 
-    $scope.toggleUseDifferentPreviousMasterPassword = function() {
-        $scope.useDifferentPreviousMasterPassword = !$scope.useDifferentPreviousMasterPassword;
+    vm.toggleUseDifferentPreviousMasterPassword = function() {
+        vm.useDifferentPreviousMasterPassword = !vm.useDifferentPreviousMasterPassword;
     };
 
-    $scope.toggleNewPassword = function(value) {
+    vm.toggleNewPassword = function(value) {
         if (arguments.length > 0) {
-            $scope.generateNewPassword = value;
+            vm.generateNewPassword = value;
         }
         else {
-            $scope.generateNewPassword = !$scope.generateNewPassword;
+            vm.generateNewPassword = !vm.generateNewPassword;
         }
 
-        if ($scope.generateNewPassword) {
-            $scope.newPasswordSelection = 'on';
-            $scope.newPasswordHandleStyle = {'left': '100%'};
-            $scope.newPasswordOnStyle = {'width': '100%'};
-            $scope.newPasswordOffStyle = {'width': '0%'};
-            $scope.submitLabel = 'create';
+        if (vm.generateNewPassword) {
+            vm.newPasswordSelection = 'on';
+            vm.newPasswordHandleStyle = {'left': '100%'};
+            vm.newPasswordOnStyle = {'width': '100%'};
+            vm.newPasswordOffStyle = {'width': '0%'};
+            vm.submitLabel = 'create';
         }
         else {
-            $scope.newPasswordSelection = 'off';
-            $scope.newPasswordHandleStyle = {'left': '0%'};
-            $scope.newPasswordOnStyle = {'width': '0%'};
-            $scope.newPasswordOffStyle = {'width': '100%'};
-            $scope.submitLabel = 'generate';
+            vm.newPasswordSelection = 'off';
+            vm.newPasswordHandleStyle = {'left': '0%'};
+            vm.newPasswordOnStyle = {'width': '0%'};
+            vm.newPasswordOffStyle = {'width': '100%'};
+            vm.submitLabel = 'generate';
         }
     };
 
-    $scope.setup = function() {
+    vm.setup = function() {
         $location.path('/setup');
     };
 
-    $scope.mapping = function() {
+    vm.mapping = function() {
         $location.path('/mapping');
     };
 
-    $scope.all = function() {
+    vm.all = function() {
         $location.path('/all');
     };
 
-    $scope.select = function(match) {
-        $scope.param = match.param;
+    vm.select = function(match) {
+        vm.param = match.param;
     };
 
-    $scope.generate = function() {
-        $scope.matches = [];
+    vm.generate = function() {
+        vm.matches = [];
 
-        $scope.loading = true;
-        $scope.error = false;
+        vm.loading = true;
+        vm.error = false;
 
-        var param = $scope.param;
-        var symbol = $scope.includeSymbols;
-        var notes = $scope.notes;
-        var length = parseInt($scope.passwordLength);
+        var param = vm.param;
+        var symbol = vm.includeSymbols;
+        var notes = vm.notes;
+        var length = parseInt(vm.passwordLength);
         var iterations = null;
         var salt = null;
         var number = 0;
 
         if (param === null || param.length == 0) {
-            $scope.loading = false;
-            $scope.error = true;
-            $scope.errorMessage = "Parameter must be provided";
+            vm.loading = false;
+            vm.error = true;
+            vm.errorMessage = "Parameter must be provided";
             return;
         }
 
-        $scope.previousResult = null;
-        $scope.loadingPrevious = false;
-        $scope.hasPreviousPassword = false;
+        vm.previousResult = null;
+        vm.loadingPrevious = false;
+        vm.hasPreviousPassword = false;
 
         // Don't use unique salt per site if there is nowhere to store it
         if (!metadata.hasStorageUrl()) {
@@ -284,15 +290,15 @@ angular.module('hash0.controllers', [])
             }
 
             var config = metadata.findConfig(param);
-            if (config == null || $scope.generateNewPassword) {
+            if (config == null || vm.generateNewPassword) {
                 // Generate different salt per site to make master password more secure
                 salt = crypto.generateSalt(prompt);
                 if (salt.type != crypto.generatorTypes.csprng) {
                     var message = "Couldn't get a secure random number generator";
                     $window.alert(message);
-                    $scope.loading = false;
-                    $scope.error = true;
-                    $scope.errorMessage = message;
+                    vm.loading = false;
+                    vm.error = true;
+                    vm.errorMessage = message;
                     return;
                 }
                 salt = salt.salt;
@@ -301,8 +307,8 @@ angular.module('hash0.controllers', [])
                     number = config.number + 1;
                 }
 
-                if (config && $scope.generateNewPassword) {
-                    $scope.hasPreviousPassword = true;
+                if (config && vm.generateNewPassword) {
+                    vm.hasPreviousPassword = true;
                 }
             }
             else {
@@ -324,7 +330,7 @@ angular.module('hash0.controllers', [])
                 }
 
                 if (config.oldVersions && config.oldVersions.length > 0) {
-                    $scope.hasPreviousPassword = true;
+                    vm.hasPreviousPassword = true;
                 }
             }
         }
@@ -339,11 +345,11 @@ angular.module('hash0.controllers', [])
         }, function(password) {
 
             if (password) {
-                $scope.result = password.password;
-                $scope.configCollapsed = true;
-                $scope.resultCollapsed = false;
+                vm.result = password.password;
+                vm.configCollapsed = true;
+                vm.resultCollapsed = false;
 
-                var escapedParam = $scope.originalParam.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+                var escapedParam = vm.originalParam.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var code = "                                                  \
                     var url = window.location.href;                           \
@@ -387,9 +393,9 @@ angular.module('hash0.controllers', [])
                     if (salt.type != crypto.generatorTypes.csprng) {
                         var message = "Couldn't get a secure random number generator";
                         $window.alert(message);
-                        $scope.loading = false;
-                        $scope.error = true;
-                        $scope.errorMessage = message;
+                        vm.loading = false;
+                        vm.error = true;
+                        vm.errorMessage = message;
                         return false;
                     }
                     return true;
@@ -399,35 +405,35 @@ angular.module('hash0.controllers', [])
                 sync.upload(false, shouldContinueWithSalt, function(err) {
                     if (err) {
                         $window.alert(err);
-                        $scope.loading = false;
-                        $scope.error = true;
-                        $scope.errorMessage = err;
+                        vm.loading = false;
+                        vm.error = true;
+                        vm.errorMessage = err;
                     }
                     else {
-                        $scope.loading = false;
-                        $scope.error = false;
+                        vm.loading = false;
+                        vm.error = false;
                     }
                 });
 
-                $scope.toggleNewPassword(false);
+                vm.toggleNewPassword(false);
             }
             else {
                 var message = 'Failed to generate password';
                 $window.alert(message);
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = message;
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = message;
             }
         });
     };
 
-    $scope.showPrevious = function() {
-        $scope.loadingPrevious = true;
+    vm.showPrevious = function() {
+        vm.loadingPrevious = true;
 
-        var param = $scope.param;
-        var symbol = $scope.includeSymbols;
-        var notes = $scope.notes;
-        var length = parseInt($scope.passwordLength);
+        var param = vm.param;
+        var symbol = vm.includeSymbols;
+        var notes = vm.notes;
+        var length = parseInt(vm.passwordLength);
         var iterations = null;
         var salt = null;
         var number = 0;
@@ -477,24 +483,24 @@ angular.module('hash0.controllers', [])
             salt: salt
         };
 
-        if ($scope.useDifferentPreviousMasterPassword) {
-            args.masterPassword = $scope.previousMasterPassword;
-            delete $scope.previousMasterPassword;
+        if (vm.useDifferentPreviousMasterPassword) {
+            args.masterPassword = vm.previousMasterPassword;
+            delete vm.previousMasterPassword;
         }
 
         crypto.generatePassword(args, function(password) {
             if (password) {
-                $scope.previousResult = password.password;
+                vm.previousResult = password.password;
             }
             else {
                 $window.alert('Failed to generate password');
             }
-            $scope.loadingPrevious = false;
+            vm.loadingPrevious = false;
         });
     };
 
-    $scope.$watch('param', function(newVal, oldVal) {
-        $scope.matches = [];
+    vm.paramWatch = $scope.$watch('param', function(newVal, oldVal) {
+        vm.matches = [];
 
         var key = newVal;
         var mapping = metadata.findMapping(key);
@@ -504,25 +510,25 @@ angular.module('hash0.controllers', [])
         var config = metadata.findConfig(key);
         if (config !== null) {
             if (config.notes) {
-                $scope.notes = config.notes;
+                vm.notes = config.notes;
             }
             if (config.passwordLength) {
-                $scope.passwordLength = ''+config.passwordLength;
+                vm.passwordLength = ''+config.passwordLength;
             }
             if (typeof(config.includeSymbols) != 'undefined') {
-                $scope.toggleSymbols(config.includeSymbols);
+                vm.toggleSymbols(config.includeSymbols);
             }
-            $scope.submitLabel = 'generate';
-            $scope.toggleNewPassword(false);
+            vm.submitLabel = 'generate';
+            vm.toggleNewPassword(false);
 
         } else {
             if (key.length > 0) {
-                $scope.matches = metadata.findConfigs(key);
+                vm.matches = metadata.findConfigs(key);
             }
-            $scope.notes = '';
-            $scope.passwordLength = '30';
-            $scope.submitLabel = 'create';
-            $scope.toggleNewPassword(true);
+            vm.notes = '';
+            vm.passwordLength = '30';
+            vm.submitLabel = 'create';
+            vm.toggleNewPassword(true);
         }
     });
 
@@ -535,14 +541,14 @@ angular.module('hash0.controllers', [])
             domain = '';
         }
 
-        $scope.param = domain;
-        $scope.originalParam = domain;
+        vm.param = domain;
+        vm.originalParam = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
         if (mapping !== null) {
             key = mapping.to;
-            $scope.param = key;
+            vm.param = key;
         }
     }
 
@@ -563,9 +569,11 @@ angular.module('hash0.controllers', [])
         });
     }
 }])
-.controller('MappingController', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
-    $scope.from = '';
-    $scope.to = null;
+.controller('MappingController', ['$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($window, $location, $timeout, sync, metadata, crypto) {
+    var vm = this;
+
+    vm.from = '';
+    vm.to = null;
 
     var unsortedParams = metadata.getAllParams();
     var params = [];
@@ -589,43 +597,43 @@ angular.module('hash0.controllers', [])
             });
         }
     }
-    $scope.params = params.sort();
+    vm.params = params.sort();
 
-    $scope.mappings = metadata.getAllMappings();
-    for (var i = 0; i < $scope.mappings.length; i++) {
-        $scope.mappings[i].label = $scope.mappings[i].from + ' > ' + $scope.mappings[i].to;
+    vm.mappings = metadata.getAllMappings();
+    for (var i = 0; i < vm.mappings.length; i++) {
+        vm.mappings[i].label = vm.mappings[i].from + ' > ' + vm.mappings[i].to;
     }
 
-    $scope.cancel = function() {
+    vm.cancel = function() {
         $location.path('/generation');
     };
 
-    $scope.save = function() {
-        $scope.loading = true;
-        $scope.error = false;
+    vm.save = function() {
+        vm.loading = true;
+        vm.error = false;
 
-        if (!$scope.to) {
-            $scope.loading = false;
-            $scope.error = true;
-            $scope.errorMessage = 'Please select a target to map to.';
+        if (!vm.to) {
+            vm.loading = false;
+            vm.error = true;
+            vm.errorMessage = 'Please select a target to map to.';
             return;
         }
 
         $timeout(function() {
-            $scope.saveInternal();
+            vm.saveInternal();
         }, 500, true);
     };
 
-    $scope.saveInternal = function() {
-        metadata.addMapping($scope.from, $scope.to.param);
+    vm.saveInternal = function() {
+        metadata.addMapping(vm.from, vm.to.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = message;
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = message;
                 return false;
             }
             return true;
@@ -633,50 +641,50 @@ angular.module('hash0.controllers', [])
 
         sync.upload(true, shouldContinueWithSalt, function(err) {
             if (err) {
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = "Failed to upload metadata.";
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = "Failed to upload metadata.";
             }
             else {
-                $scope.loading = false;
-                $scope.error = false;
+                vm.loading = false;
+                vm.error = false;
                 $location.path('/generation');
             }
         });
     };
 
-    $scope.remove = function() {
-        if (!$scope.selectedMapping) {
-            $scope.removeLoading = false;
-            $scope.removeError = true;
-            $scope.removeErrorMessage = 'Please select a mapping.';
+    vm.remove = function() {
+        if (!vm.selectedMapping) {
+            vm.removeLoading = false;
+            vm.removeError = true;
+            vm.removeErrorMessage = 'Please select a mapping.';
             return;
         }
 
-        $scope.confirming = true;
-        $scope.removeError = false;
+        vm.confirming = true;
+        vm.removeError = false;
     };
 
-    $scope.confirmRemove = function() {
-        $scope.confirming = false;
-        $scope.removeLoading = true;
-        $scope.removeError = false;
+    vm.confirmRemove = function() {
+        vm.confirming = false;
+        vm.removeLoading = true;
+        vm.removeError = false;
 
         $timeout(function() {
-            $scope.removeInternal();
+            vm.removeInternal();
         }, 500, true);
     };
 
-    $scope.removeInternal = function() {
-        metadata.removeMapping($scope.selectedMapping.from, $scope.selectedMapping.to);
+    vm.removeInternal = function() {
+        metadata.removeMapping(vm.selectedMapping.from, vm.selectedMapping.to);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
-                $scope.removeLoading = false;
-                $scope.removeError = true;
-                $scope.removeErrorMessage = message;
+                vm.removeLoading = false;
+                vm.removeError = true;
+                vm.removeErrorMessage = message;
                 return false;
             }
             return true;
@@ -684,19 +692,21 @@ angular.module('hash0.controllers', [])
 
         sync.upload(true, shouldContinueWithSalt, function(err) {
             if (err) {
-                $scope.removeLoading = false;
-                $scope.removeError = true;
-                $scope.removeErrorMessage = "Failed to upload metadata.";
+                vm.removeLoading = false;
+                vm.removeError = true;
+                vm.removeErrorMessage = "Failed to upload metadata.";
             }
             else {
-                $scope.removeLoading = false;
-                $scope.removeError = false;
+                vm.removeLoading = false;
+                vm.removeError = false;
                 $location.path('/generation');
             }
         });
     };
 }])
-.controller('AllPasswordsController', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
+.controller('AllPasswordsController', ['$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($window, $location, $timeout, sync, metadata, crypto) {
+    var vm = this;
+
     var unsortedParams = metadata.getAllParams();
     var params = [];
     for (var i = 0; i < unsortedParams.length; i++) {
@@ -719,39 +729,39 @@ angular.module('hash0.controllers', [])
             });
         }
     }
-    $scope.params = params.sort();
-    if ($scope.params.length > 0) {
-        $scope.selectedParam = $scope.params[0];
+    vm.params = params.sort();
+    if (vm.params.length > 0) {
+        vm.selectedParam = vm.params[0];
     }
 
-    $scope.cancel = function() {
+    vm.cancel = function() {
         $location.path('/generation');
     };
 
-    $scope.remove = function() {
-        $scope.confirming = true;
+    vm.remove = function() {
+        vm.confirming = true;
     };
 
-    $scope.confirmRemove = function() {
-        $scope.confirming = false;
-        $scope.loading = true;
-        $scope.error = false;
+    vm.confirmRemove = function() {
+        vm.confirming = false;
+        vm.loading = true;
+        vm.error = false;
 
         $timeout(function() {
-            $scope.removeInternal();
+            vm.removeInternal();
         }, 500, true);
     };
 
-    $scope.removeInternal = function() {
-        metadata.removeConfig($scope.selectedParam.param);
+    vm.removeInternal = function() {
+        metadata.removeConfig(vm.selectedParam.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = message;
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = message;
                 return false;
             }
             return true;
@@ -759,30 +769,33 @@ angular.module('hash0.controllers', [])
 
         sync.upload(true, shouldContinueWithSalt, function(err) {
             if (err) {
-                $scope.loading = false;
-                $scope.error = true;
-                $scope.errorMessage = "Failed to upload metadata.";
+                vm.loading = false;
+                vm.error = true;
+                vm.errorMessage = "Failed to upload metadata.";
             }
             else {
-                $scope.loading = false;
-                $scope.error = false;
+                vm.loading = false;
+                vm.error = false;
                 $location.path('/generation');
             }
         });
     };
 }])
-.controller('TestController', ['$scope', '$window', 'crypto', function($scope, $window, crypto) {
-    $scope.iterations = '4096';
-    $scope.loading = false;
-    $scope.delta = null;
+.controller('TestController', ['$window', 'crypto', function($window, crypto) {
+    var vm = this;
 
-    $scope.test = function() {
-        var iterations = parseInt($scope.iterations);
-        $scope.delta = null;
+    vm.iterations = '4096';
+    vm.loading = false;
+    vm.delta = null;
+
+    vm.test = function() {
+        var iterations = parseInt(vm.iterations);
+        vm.delta = null;
         var start = new Date().getTime();
-        $scope.loading = true;
+        vm.loading = true;
         crypto.setMasterPassword('test');
         var salt = crypto.generateSalt();
+
         crypto.generatePassword({
             includeSymbols: true,
             passwordLength: 30,
@@ -796,9 +809,9 @@ angular.module('hash0.controllers', [])
             }
 
             var end = new Date().getTime();
-            $scope.loading = false;
+            vm.loading = false;
 
-            $scope.delta = (end - start);
+            vm.delta = (end - start);
         });
     };
 }]);

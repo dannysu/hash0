@@ -6,16 +6,16 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label style="width:100%" for="master" class="ui-input-text">Number of iterations:</label>
-            <input type="text" name="master" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="iterations"/>
+            <input type="text" name="master" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="test.iterations"/>
         </div>
-        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="test()" data-ng-hide="loading">
+        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="test.test()" data-ng-hide="test.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
                     Test
                 </span>
             </span>
         </a>
-        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="loading"/>
-        <div data-ng-show="delta">roughly: {{delta}} ms</div>
+        <img src="img/progress-indeterminate-ring-light-small.gif" data-ng-show="test.loading"/>
+        <div data-ng-show="test.delta">roughly: {{test.delta}} ms</div>
     </div>
 </div>

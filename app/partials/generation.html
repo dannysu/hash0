@@ -6,15 +6,15 @@
     <div class="ui-content ui-body-b">
         <div class="ui-field-contain ui-body ui-br">
             <label for="param" class="ui-input-text">Parameter:</label>
-            <input type="text" autocorrect="off" autocapitalize="off" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="param"/>
-            <div data-ng-repeat="match in matches track by match.param" data-ng-hide="loading">
+            <input type="text" autocorrect="off" autocapitalize="off" name="param" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.param"/>
+            <div data-ng-repeat="match in generation.matches track by match.param" data-ng-hide="generation.loading">
                 <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b ui-btn-input-like">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             {{match.param}}
                         </span>
                     </span>
-                    <button class="ui-btn-hidden" data-ng-click="select(match)">
+                    <button class="ui-btn-hidden" data-ng-click="generation.select(match)">
                         {{match.param}}
                     </button>
                 </div>
@@ -22,33 +22,33 @@
         </div>
 
         <br/>
-        <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b" data-ng-hide="loading">
+        <div class="ui-btn ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-up-b" data-ng-hide="generation.loading">
             <span class="ui-btn-inner ui-btn-corner-all">
                 <span class="ui-btn-text">
-                    {{submitLabel}}
+                    {{generation.submitLabel}}
                 </span>
             </span>
-            <button id="generate" class="ui-btn-hidden" data-ng-click="generate()">
-                {{submitLabel}}
+            <button id="generate" class="ui-btn-hidden" data-ng-click="generation.generate()">
+                {{generation.submitLabel}}
             </button>
         </div>
-        <div class="outer-box" data-ng-show="loading">
+        <div class="outer-box" data-ng-show="generation.loading">
             <img src="img/progress-indeterminate-ring-light-small.gif"/>
         </div>
         <br/>
 
         <fieldset>
-            <a style="float:right" class="ui-link ui-toggle-button ui-toggle-button-b" data-ng-class="{'ui-toggle-checked': configCollapsed, 'ui-toggle-unchecked': !configCollapsed}" data-ng-click="toggleConfig()" data-ng-checked="!configCollapsed" disable-link="">
+            <a style="float:right" class="ui-link ui-toggle-button ui-toggle-button-b" data-ng-class="{'ui-toggle-checked': generation.configCollapsed, 'ui-toggle-unchecked': !generation.configCollapsed}" data-ng-click="generation.toggleConfig()" data-ng-checked="!generation.configCollapsed" disable-link="">
                 <div class="ui-toggle-icon ui-icon-demo-set"></div>
                 <div class="ui-toggle-caption"></div>
             </a>
         </fieldset>
 
-        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': configCollapsed}">
-            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': configCollapsed}">
+        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': generation.configCollapsed}">
+            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': generation.configCollapsed}">
                 <div class="ui-field-contain ui-body ui-br">
                     <label for="notes" class="ui-input-text">Notes:</label>
-                    <textarea type="text" name="notes" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="notes">
+                    <textarea type="text" name="notes" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.notes">
                     </textarea>
                 </div>
 
@@ -61,7 +61,7 @@
                                 <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
                                 </span>
                             </span>
-                            <select name="length" data-ng-model="passwordLength">
+                            <select name="length" data-ng-model="generation.passwordLength">
                                 <option value="8">8</option>
                                 <option value="9">9</option>
                                 <option value="10">10</option>
@@ -92,15 +92,15 @@
 
                 <div class="ui-field-contain ui-body ui-br">
                     <label style="width:100%" for="symbol" class="ui-slider">Include symbols:</label>
-                    <select name="symbol" class="ui-slider-switch" data-ng-model="symbolSelection">
+                    <select name="symbol" class="ui-slider-switch" data-ng-model="generation.symbolSelection">
                         <option value="off">Off</option>
                         <option value="on">On</option>
                     </select>
-                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="toggleSymbols()">
-                        <span data-ng-style="symbolOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
-                        <span data-ng-style="symbolOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
+                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="generation.toggleSymbols()">
+                        <span data-ng-style="generation.symbolOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
+                        <span data-ng-style="generation.symbolOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
                         <div class="ui-slider-inneroffset">
-                            <a data-ng-style="symbolHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{symbolSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
+                            <a data-ng-style="generation.symbolHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{symbolSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
                                 <span class="ui-btn-inner ui-btn-corner-all">
                                     <span class="ui-btn-text"></span>
                                 </span>
@@ -111,15 +111,15 @@
 
                 <div class="ui-field-contain ui-body ui-br">
                     <label style="width:100%" for="newpassword" class="ui-slider">Generate new password:</label>
-                    <select name="newpassword" class="ui-slider-switch" data-ng-model="newPasswordSelection">
+                    <select name="newpassword" class="ui-slider-switch" data-ng-model="generation.newPasswordSelection">
                         <option value="off">Off</option>
                         <option value="on">On</option>
                     </select>
-                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="toggleNewPassword()">
-                        <span data-ng-style="newPasswordOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
-                        <span data-ng-style="newPasswordOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
+                    <div style="" class="ui-slider ui-slider-switch ui-btn-down-b ui-btn-corner-all" role="application" data-ng-click="generation.toggleNewPassword()">
+                        <span data-ng-style="generation.newPasswordOnStyle" role="img" class="ui-slider-label ui-slider-label-a ui-btn-active ui-btn-corner-all">On</span>
+                        <span data-ng-style="generation.newPasswordOffStyle" role="img" class="ui-slider-label ui-slider-label-b ui-btn-down-b ui-btn-corner-all">Off</span>
                         <div class="ui-slider-inneroffset">
-                            <a data-ng-style="newPasswordHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{newPasswordSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
+                            <a data-ng-style="generation.newPasswordHandleStyle" aria-labelledby="symbol-label" aria-valuenow="{{newPasswordSelection}}" aria-valuemax="1" aria-valuemin="0" role="slider" class="ui-slider-handle ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-slider-handle-snapping ui-btn-up-b" disable-link="">
                                 <span class="ui-btn-inner ui-btn-corner-all">
                                     <span class="ui-btn-text"></span>
                                 </span>
@@ -128,21 +128,21 @@
                     </div>
                 </div>
 
-                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="setup()">
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="generation.setup()">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             Setup
                         </span>
                     </span>
                 </a>
-                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="mapping()" data-ng-show="params.length > 0">
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="generation.mapping()" data-ng-show="generation.params.length > 0">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             Mapping
                         </span>
                     </span>
                 </a>
-                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="all()" data-ng-show="params.length > 0">
+                <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="generation.all()" data-ng-show="generation.params.length > 0">
                     <span class="ui-btn-inner ui-btn-corner-all">
                         <span class="ui-btn-text">
                             All Passwords
@@ -152,21 +152,21 @@
             </div>
         </div>
 
-        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': resultCollapsed}">
-            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': resultCollapsed}">
+        <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': generation.resultCollapsed}">
+            <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': generation.resultCollapsed}">
                 <div class="ui-field-contain ui-body ui-br">
                     <label for="output" class="ui-input-text">Password:</label>
-                    <input type="text" name="output" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="result"/>
-                    <div data-ng-show="hasPreviousPassword">
+                    <input type="text" name="output" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.result"/>
+                    <div data-ng-show="generation.hasPreviousPassword">
                         <br>
                         <label for="output" class="ui-input-text">Previous Password:</label>
 
-                        <div class="ui-field-contain ui-body ui-br" data-ng-hide="useDifferentPreviousMasterPassword || loadingPrevious || previousResult">
+                        <div class="ui-field-contain ui-body ui-br" data-ng-hide="generation.useDifferentPreviousMasterPassword || generation.loadingPrevious || generation.previousResult">
                             <fieldset class="ui-corner-all ui-controlgroup ui-controlgroup-horizontal">
                                 <div class="ui-controlgroup-controls">
                                     <div class="ui-checkbox">
-                                        <input name="checkbox-6" id="checkbox-6" class="custom" type="checkbox" data-ng-modal="useDifferentPreviousMasterPassword">
-                                        <label class="ui-btn ui-corner-left ui-checkbox-off ui-btn-up-b" for="checkbox-6" data-ng-click="toggleUseDifferentPreviousMasterPassword()">
+                                        <input name="checkbox-6" id="checkbox-6" class="custom" type="checkbox" data-ng-modal="generation.useDifferentPreviousMasterPassword">
+                                        <label class="ui-btn ui-corner-left ui-checkbox-off ui-btn-up-b" for="checkbox-6" data-ng-click="generation.toggleUseDifferentPreviousMasterPassword()">
                                             <div class="ui-btn-inner ui-corner-left">
                                                 <span class="ui-btn-text nowrap" style="white-space:nowrap">Different Master Password?</span>
                                             </div>
@@ -176,19 +176,19 @@
                             </fieldset>
                         </div>
         
-                        <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="previousMasterPassword" data-ng-show="useDifferentPreviousMasterPassword && !(loadingPrevious || previousResult)"/>
+                        <input type="password" value="" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.previousMasterPassword" data-ng-show="generation.useDifferentPreviousMasterPassword && !(loadingPrevious || previousResult)"/>
 
-                        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="showPrevious()" data-ng-hide="loadingPrevious || previousResult">
+                        <a class="ui-btn ui-btn-inline ui-shadow ui-btn-corner-all ui-btn-up-b" disable-link="" data-ng-click="generation.showPrevious()" data-ng-hide="generation.loadingPrevious || generation.previousResult">
                             <span class="ui-btn-inner ui-btn-corner-all">
                                 <span class="ui-btn-text">
                                     Show
                                 </span>
                             </span>
                         </a>
-                        <div data-ng-show="previousResult">
-                            <input type="text" name="output" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="previousResult"/>
+                        <div data-ng-show="generation.previousResult">
+                            <input type="text" name="output" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.previousResult"/>
                         </div>
-                        <div data-ng-show="loadingPrevious">
+                        <div data-ng-show="generation.loadingPrevious">
                             <img src="img/progress-indeterminate-ring-light-small.gif"/>
                         </div>
                     </div>
