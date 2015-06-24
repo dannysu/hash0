@@ -10,30 +10,30 @@ describe('controllers', function(){
 
     it('should have all expected controllers', inject(function($controller, $rootScope, metadata) {
         var scope = $rootScope.$new();
-        var dispatcherCtrl = $controller('DispatcherCtrl', {
+        var dispatcherController = $controller('DispatcherController', {
             '$scope': scope,
             'metadata': metadata
         });
-        expect(dispatcherCtrl).toBeDefined();
+        expect(dispatcherController).toBeDefined();
 
-        var setupCtrl = $controller('SetupCtrl', {
+        var setupController = $controller('SetupController', {
             '$scope': scope
         });
-        expect(setupCtrl).toBeDefined();
+        expect(setupController).toBeDefined();
 
-        var unlockCtrl = $controller('UnlockCtrl', {
+        var unlockController = $controller('UnlockController', {
             '$scope': scope
         });
-        expect(unlockCtrl).toBeDefined();
+        expect(unlockController).toBeDefined();
 
-        var generationCtrl = $controller('GenerationCtrl', {
+        var generationController = $controller('GenerationController', {
             '$scope': scope
         });
-        expect(generationCtrl).toBeDefined();
+        expect(generationController).toBeDefined();
 
-        var mappingCtrl = $controller('MappingCtrl', {
+        var mappingController = $controller('MappingController', {
             '$scope': scope
         });
-        expect(mappingCtrl).toBeDefined();
+        expect(mappingController).toBeDefined();
     }));
 });

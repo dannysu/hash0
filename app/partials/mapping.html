@@ -51,12 +51,12 @@
             <div class="ui-select">
                 <div class="ui-btn ui-btn-up-b ui-shadow ui-btn-corner-all ui-fullsize ui-btn-block ui-btn-icon-right">
                     <span class="ui-btn-inner ui-btn-corner-all">
-                        <span class="ui-btn-text">{{selected_mapping ? selected_mapping.label : '-- choose mapping --'}}</span>
+                        <span class="ui-btn-text">{{selectedMapping ? selectedMapping.label : '-- choose mapping --'}}</span>
                         <span class="ui-icon ui-icon-arrow-d ui-icon-shadow">
                         </span>
                     </span>
 
-                    <select data-ng-model="selected_mapping" data-ng-options="mapping.label for mapping in mappings">
+                    <select data-ng-model="selectedMapping" data-ng-options="mapping.label for mapping in mappings">
                         <option value="">-- choose mapping --</option>
                     </select>
                 </div>

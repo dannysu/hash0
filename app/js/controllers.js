@@ -1,9 +1,10 @@
+/*global angular*/
 'use strict';
 
 /* Controllers */
 
 angular.module('hash0.controllers', [])
-.controller('DispatcherCtrl', ['$timeout', '$window', '$location', 'metadata', 'crypto', function($timeout, $window, $location, metadata, crypto) {
+.controller('DispatcherController', ['$timeout', '$window', '$location', 'metadata', 'crypto', function($timeout, $window, $location, metadata, crypto) {
 
     var redirect = function() {
         if (metadata.hasStorageUrl()) {
@@ -27,7 +28,7 @@ angular.module('hash0.controllers', [])
 
     redirect();
 }])
-.controller('SetupCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($scope, $window, $location, $timeout, metadata, sync, crypto) {
+.controller('SetupController', ['$scope', '$window', '$location', '$timeout', 'metadata', 'sync', 'crypto', function($scope, $window, $location, $timeout, metadata, sync, crypto) {
     $scope.masterPassword = '';
     $scope.storageUrl = '';
     $scope.firstTime = true;
@@ -102,7 +103,7 @@ angular.module('hash0.controllers', [])
         }
     };
 }])
-.controller('UnlockCtrl', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($scope, $location, $timeout, crypto, sync, metadata, $window) {
+.controller('UnlockController', ['$scope', '$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($scope, $location, $timeout, crypto, sync, metadata, $window) {
     $scope.masterPassword = '';
 
     if ($window.addon) {
@@ -143,9 +144,9 @@ angular.module('hash0.controllers', [])
         });
     };
 }])
-.controller('GenerationCtrl', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
+.controller('GenerationController', ['$scope', '$window', '$location', '$timeout', 'metadata', 'crypto', 'sync', function($scope, $window, $location, $timeout, metadata, crypto, sync) {
     $scope.param = '';
-    $scope.original_param = '';
+    $scope.originalParam = '';
     $scope.notes = '';
     $scope.result = '';
 
@@ -342,7 +343,7 @@ angular.module('hash0.controllers', [])
                 $scope.configCollapsed = true;
                 $scope.resultCollapsed = false;
 
-                var escapedParam = $scope.original_param.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
+                var escapedParam = $scope.originalParam.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
                 var code = "                                                  \
                     var url = window.location.href;                           \
@@ -535,7 +536,7 @@ angular.module('hash0.controllers', [])
         }
 
         $scope.param = domain;
-        $scope.original_param = domain;
+        $scope.originalParam = domain;
 
         var key = domain;
         var mapping = metadata.findMapping(key);
@@ -562,14 +563,14 @@ angular.module('hash0.controllers', [])
         });
     }
 }])
-.controller('MappingCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
+.controller('MappingController', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
     $scope.from = '';
     $scope.to = null;
 
-    var unsorted_params = metadata.getAllParams();
+    var unsortedParams = metadata.getAllParams();
     var params = [];
-    for (var i = 0; i < unsorted_params.length; i++) {
-        var domain = unsorted_params[i];
+    for (var i = 0; i < unsortedParams.length; i++) {
+        var domain = unsortedParams[i];
 
         var matches = domain.match(/\./g);
         if (matches != null && matches.length > 1) {
@@ -645,7 +646,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.remove = function() {
-        if (!$scope.selected_mapping) {
+        if (!$scope.selectedMapping) {
             $scope.remove_loading = false;
             $scope.remove_error = true;
             $scope.remove_errorMessage = 'Please select a mapping.';
@@ -667,7 +668,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.removeInternal = function() {
-        metadata.removeMapping($scope.selected_mapping.from, $scope.selected_mapping.to);
+        metadata.removeMapping($scope.selectedMapping.from, $scope.selectedMapping.to);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {
@@ -695,11 +696,11 @@ angular.module('hash0.controllers', [])
         });
     };
 }])
-.controller('AllPasswordsCtrl', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
-    var unsorted_params = metadata.getAllParams();
+.controller('AllPasswordsController', ['$scope', '$window', '$location', '$timeout', 'sync', 'metadata', 'crypto', function($scope, $window, $location, $timeout, sync, metadata, crypto) {
+    var unsortedParams = metadata.getAllParams();
     var params = [];
-    for (var i = 0; i < unsorted_params.length; i++) {
-        var domain = unsorted_params[i];
+    for (var i = 0; i < unsortedParams.length; i++) {
+        var domain = unsortedParams[i];
 
         var matches = domain.match(/\./g);
         if (matches != null && matches.length > 1) {
@@ -770,7 +771,7 @@ angular.module('hash0.controllers', [])
         });
     };
 }])
-.controller('TestCtrl', ['$scope', '$window', 'crypto', function($scope, $window, crypto) {
+.controller('TestController', ['$scope', '$window', 'crypto', function($scope, $window, crypto) {
     $scope.iterations = '4096';
     $scope.loading = false;
     $scope.delta = null;
