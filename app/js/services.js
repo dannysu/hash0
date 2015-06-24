@@ -1,4 +1,4 @@
-/*global angular sjcl*/
+/*global angular sjcl CryptoJS PasswordMaker_HashUtils*/
 'use strict';
 
 /* Services */
@@ -22,11 +22,11 @@ angular.module('hash0.services', [])
     }
 
     Metadata.prototype.setStorageUrl = function(value) {
-        storage['storageUrl'] = value;
+        storage.storageUrl = value;
     };
 
     Metadata.prototype.getStorageUrl = function() {
-        return storage['storageUrl'];
+        return storage.storageUrl;
     };
 
     Metadata.prototype.hasStorageUrl = function() {
@@ -35,7 +35,7 @@ angular.module('hash0.services', [])
 
     Metadata.prototype.updateConfig = function(param, config) {
         for (var i = 0; i < this.configs.length; i++) {
-            if (this.configs[i].param == param) {
+            if (this.configs[i].param === param) {
                 this.configs.splice(i, 1, config);
                 break;
             }
@@ -59,7 +59,7 @@ angular.module('hash0.services', [])
 
     Metadata.prototype.findConfig = function(param, partialMatch) {
         for (var i = 0; i < this.configs.length; i++) {
-            if (this.configs[i].param == param) {
+            if (this.configs[i].param === param) {
                 return this.configs[i];
             }
 
@@ -78,7 +78,7 @@ angular.module('hash0.services', [])
 
     Metadata.prototype.findMapping = function(from) {
         for (var i = 0; i < this.mappings.length; i++) {
-            if (this.mappings[i].from == from) {
+            if (this.mappings[i].from === from) {
                 return this.mappings[i];
             }
         }
@@ -92,8 +92,8 @@ angular.module('hash0.services', [])
     Metadata.prototype.markClean = function() {
         this.dirty = false;
 
-        storage['configs'] = JSON.stringify(this.configs);
-        storage['mappings'] = JSON.stringify(this.mappings);
+        storage.configs = angular.toJson(this.configs);
+        storage.mappings = angular.toJson(this.mappings);
     };
 
     Metadata.prototype.replaceData = function(configs, mappings) {
@@ -102,9 +102,9 @@ angular.module('hash0.services', [])
         this.markClean();
     };
 
-    Metadata.prototype.stringify =  function() {
-        var jsonConfigs = JSON.stringify(this.configs);
-        var jsonMappings = JSON.stringify(this.mappings);
+    Metadata.prototype.stringify = function() {
+        var jsonConfigs = angular.toJson(this.configs);
+        var jsonMappings = angular.toJson(this.mappings);
         var data = '{"mappings":' + jsonMappings + ',"configs":' + jsonConfigs + '}';
         return data;
     };
@@ -114,7 +114,7 @@ angular.module('hash0.services', [])
         if (mapping === null) {
             var newmapping = {
                 'from': from,
-                'to': to,
+                'to': to
             };
             this.mappings.push(newmapping);
         }
@@ -127,7 +127,7 @@ angular.module('hash0.services', [])
     Metadata.prototype.removeMapping = function(from, to) {
         for (var i = 0; i < this.mappings.length; i++) {
             var mapping = this.mappings[i];
-            if (mapping.from == from && mapping.to == to) {
+            if (mapping.from === from && mapping.to === to) {
                 this.mappings.splice(i, 1);
                 break;
             }
@@ -150,7 +150,7 @@ angular.module('hash0.services', [])
             };
 
             newConfig.oldVersions = existingConfig.oldVersions || [];
-            delete existingConfig['oldVersions'];
+            delete existingConfig.oldVersions;
             newConfig.oldVersions.push(existingConfig);
             this.updateConfig(newConfig.param, newConfig);
         }
@@ -169,21 +169,21 @@ angular.module('hash0.services', [])
         newConfig.number = options.number || 0;
 
         var existingConfig = this.findConfig(options.param);
-        if (existingConfig != null) {
+        if (existingConfig !== null) {
             // Check if anything has changed
-            if (existingConfig.param == newConfig.param &&
-                existingConfig.salt == newConfig.salt &&
-                existingConfig.includeSymbols == newConfig.includeSymbols &&
-                existingConfig.passwordLength == newConfig.passwordLength &&
-                existingConfig.notes == newConfig.notes &&
-                existingConfig.iterations == newConfig.iterations &&
-                existingConfig.number == newConfig.number) {
+            if (existingConfig.param === newConfig.param &&
+                existingConfig.salt === newConfig.salt &&
+                existingConfig.includeSymbols === newConfig.includeSymbols &&
+                existingConfig.passwordLength === newConfig.passwordLength &&
+                existingConfig.notes === newConfig.notes &&
+                existingConfig.iterations === newConfig.iterations &&
+                existingConfig.number === newConfig.number) {
 
                 // Nothing has changed, so no-op
             }
             else {
                 newConfig.oldVersions = existingConfig.oldVersions || [];
-                delete existingConfig['oldVersions'];
+                delete existingConfig.oldVersions;
                 newConfig.oldVersions.push(existingConfig);
                 this.updateConfig(newConfig.param, newConfig);
                 this.dirty = true;
@@ -198,7 +198,7 @@ angular.module('hash0.services', [])
 
     Metadata.prototype.removeConfig = function(param) {
         for (var i = 0; i < this.configs.length; i++) {
-            if (this.configs[i].param == param) {
+            if (this.configs[i].param === param) {
                 this.configs.splice(i, 1);
                 break;
             }
@@ -237,7 +237,7 @@ angular.module('hash0.services', [])
         // Let's use a different encryption key each time we upload.
         var salt = crypto.generateSalt();
         if (!shouldContinueWithSalt(salt)) {
-            return;
+            return null;
         }
 
         crypto.generatePassword({
@@ -259,7 +259,7 @@ angular.module('hash0.services', [])
             };
 
             var encrypted = sjcl.encrypt(password.password, data, encryptParams);
-            encrypted = JSON.parse(encrypted);
+            encrypted = angular.fromJson(encrypted);
 
             // Store the salt used and # of iterations used
             // Allows a different encryption key to be used each time we update metadata
@@ -269,23 +269,23 @@ angular.module('hash0.services', [])
             encrypted.hash0.version = version;
             encrypted.hash0.versionNum = versionNum;
 
-            $http.post(metadata.getStorageUrl(), JSON.stringify(encrypted)).
-                success(function(data, status, headers, config) {
-                    if (!data.success) {
+            $http.post(metadata.getStorageUrl(), angular.toJson(encrypted)).
+                success(function(result) {
+                    if (!result.success) {
                         return callback('Failed to synchronize settings');
                     }
                     metadata.markClean();
                     callback(null);
                 }).
-                error(function(data, status, headers, config) {
-                    callback(data || 'Failed to synchronize settings');
+                error(function(result) {
+                    callback(result || 'Failed to synchronize settings');
                 });
         });
     };
 
     Synchronization.prototype.decryptDownload = function(data, callback) {
         var urldecoded = decodeURIComponent(data);
-        var encrypted = JSON.parse(urldecoded);
+        var encrypted = angular.fromJson(urldecoded);
         if (encrypted.hash0) {
             var salt = encrypted.hash0.salt;
             var iterations = encrypted.hash0.iterations;
@@ -301,9 +301,9 @@ angular.module('hash0.services', [])
             }, function(password) {
                 // Decrypt settings
                 try {
-                    var decrypted = sjcl.decrypt(password.password, JSON.stringify(encrypted));
+                    var decrypted = sjcl.decrypt(password.password, angular.toJson(encrypted));
 
-                    var json = JSON.parse(decrypted);
+                    var json = angular.fromJson(decrypted);
 
                     return callback(null, json);
                 }
@@ -315,7 +315,7 @@ angular.module('hash0.services', [])
             return;
         }
 
-        return callback("missing hash0 metadata for encrypted data");
+        callback("missing hash0 metadata for encrypted data");
     };
 
     Synchronization.prototype.download = function(callback) {
@@ -327,7 +327,7 @@ angular.module('hash0.services', [])
         var self = this;
 
         $http.get(metadata.getStorageUrl()).
-            success(function(data, status, headers, config) {
+            success(function(data) {
                 if (data.success) {
 
                     self.decryptDownload(data.data, function(err, json) {
@@ -342,10 +342,10 @@ angular.module('hash0.services', [])
                     return;
                 }
 
-                return callback("Failed to download metadata. Perhaps you typed in the wrong password?");
+                callback("Failed to download metadata. Perhaps you typed in the wrong password?");
             }).
-            error(function(data, status, headers, config) {
-                if (status == 404) {
+            error(function(data, status) {
+                if (status === 404) {
                     callback(null);
                 }
                 else {
@@ -385,7 +385,7 @@ angular.module('hash0.services', [])
     };
 
     Crypto.prototype.passwordDifferent = function(value) {
-        return value != this.masterPassword;
+        return value !== this.masterPassword;
     };
 
     /*
@@ -393,13 +393,13 @@ angular.module('hash0.services', [])
      */
     Crypto.prototype.generateSalt = function(userPrompt) {
         var words = null;
-        var sigBytes = 256/8;
+        var sigBytes = 256 / 8;
         var generatorType = null;
 
         // First check if browser provides a CSPRNG
         if (($window && Uint32Array) && (($window.crypto && $window.crypto.getRandomValues) || ($window.msCrypto && $window.msCrypto.getRandomValues))) {
             try {
-                words = sjcl.random.randomWords(sigBytes/4, 10);
+                words = sjcl.random.randomWords(sigBytes / 4, 10);
                 generatorType = this.generatorTypes.csprng;
             }
             catch(e) {
@@ -423,7 +423,7 @@ angular.module('hash0.services', [])
                 // but shouldn't happen since the while loop won't exit until it's ready.
                 //
                 // Should there be any other exception in the future, then this will also just let the exception through
-                words = sjcl.random.randomWords(sigBytes/4, 10);
+                words = sjcl.random.randomWords(sigBytes / 4, 10);
                 generatorType = this.generatorTypes.user;
             }
             else {
@@ -475,7 +475,7 @@ angular.module('hash0.services', [])
         // Default to 100,000 rounds in PBKDF2 if not specified
         options.iterations = options.iterations || 100000;
 
-        if (this.enableWebWorkers && typeof($window.Worker) != 'undefined') {
+        if (this.enableWebWorkers && angular.isDefined($window.Worker)) {
             var self = this;
             var worker = new $window.Worker('./sjcl_worker.js');
             worker.postMessage({
@@ -486,7 +486,7 @@ angular.module('hash0.services', [])
             worker.onmessage = function(e) {
                 self.onPBKDF2(options, e.data, callback);
             };
-            worker.onerror = function(e) {
+            worker.onerror = function() {
                 $timeout(function() {
                     callback(null);
                 }, 0, true);
@@ -509,8 +509,8 @@ angular.module('hash0.services', [])
             charset = charsets[1];
         }
 
-        var password = PasswordMaker_HashUtils.rstr2any(
-            PasswordMaker_HashUtils.binb2rstr(key),
+        var password = PasswordMaker_HashUtils.rstr2any( //eslint-disable-line camelcase
+            PasswordMaker_HashUtils.binb2rstr(key), //eslint-disable-line camelcase
             charset
         );
 

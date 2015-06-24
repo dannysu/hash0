@@ -69,7 +69,7 @@ angular.module('hash0.controllers', [])
 
         if (upload) {
             var shouldContinueWithSalt = function(salt) {
-                if (salt.type != crypto.generatorTypes.csprng) {
+                if (salt.type !== crypto.generatorTypes.csprng) {
                     $window.alert("Couldn't get a secure random number generator");
                     return false;
                 }
@@ -268,7 +268,7 @@ angular.module('hash0.controllers', [])
         var salt = null;
         var number = 0;
 
-        if (param === null || param.length == 0) {
+        if (param === null || param.length === 0) {
             vm.loading = false;
             vm.error = true;
             vm.errorMessage = "Parameter must be provided";
@@ -285,25 +285,27 @@ angular.module('hash0.controllers', [])
         }
         else {
             var mapping = metadata.findMapping(param);
-            if (mapping != null) {
+            if (mapping !== null) {
                 param = mapping.to;
             }
 
             var config = metadata.findConfig(param);
-            if (config == null || vm.generateNewPassword) {
+            if (config === null || vm.generateNewPassword) {
                 // Generate different salt per site to make master password more secure
-                salt = crypto.generateSalt(prompt);
-                if (salt.type != crypto.generatorTypes.csprng) {
-                    var message = "Couldn't get a secure random number generator";
-                    $window.alert(message);
-                    vm.loading = false;
-                    vm.error = true;
-                    vm.errorMessage = message;
+                salt = crypto.generateSalt($window.prompt);
+                if (salt.type !== crypto.generatorTypes.csprng) {
+                    (function() {
+                        var message = "Couldn't get a secure random number generator";
+                        $window.alert(message);
+                        vm.loading = false;
+                        vm.error = true;
+                        vm.errorMessage = message;
+                    })();
                     return;
                 }
                 salt = salt.salt;
 
-                if (config != null && config.number) {
+                if (config !== null && config.number) {
                     number = config.number + 1;
                 }
 
@@ -313,7 +315,7 @@ angular.module('hash0.controllers', [])
             }
             else {
                 // Use cached config values
-                if (typeof(config.includeSymbols) != 'undefined') {
+                if (angular.isDefined(config.includeSymbols)) {
                     symbol = config.includeSymbols;
                 }
                 if (config.passwordLength) {
@@ -357,9 +359,9 @@ angular.module('hash0.controllers', [])
                     if (domain !== null) {                                    \
                         domain = domain[1];                                   \
                     }                                                         \
-                    if (domain == '"+escapedParam+"') {                       \
+                    if (domain == '" + escapedParam + "') {                   \
                         var inputs = document.getElementsByTagName('input');  \
-                        var password = '"+escapedPassword+"';                 \
+                        var password = '" + escapedPassword + "';             \
                         for (var i = 0; i < inputs.length; i++) {             \
                             if (inputs[i].type.toLowerCase() == 'password') { \
                                 inputs[i].value = password;                   \
@@ -389,8 +391,8 @@ angular.module('hash0.controllers', [])
                     number: number
                 });
 
-                var shouldContinueWithSalt = function(salt) {
-                    if (salt.type != crypto.generatorTypes.csprng) {
+                var shouldContinueWithSalt = function(generatedSalt) {
+                    if (generatedSalt.type !== crypto.generatorTypes.csprng) {
                         var message = "Couldn't get a secure random number generator";
                         $window.alert(message);
                         vm.loading = false;
@@ -418,11 +420,13 @@ angular.module('hash0.controllers', [])
                 vm.toggleNewPassword(false);
             }
             else {
-                var message = 'Failed to generate password';
-                $window.alert(message);
-                vm.loading = false;
-                vm.error = true;
-                vm.errorMessage = message;
+                (function() {
+                    var message = 'Failed to generate password';
+                    $window.alert(message);
+                    vm.loading = false;
+                    vm.error = true;
+                    vm.errorMessage = message;
+                })();
             }
         });
     };
@@ -432,14 +436,13 @@ angular.module('hash0.controllers', [])
 
         var param = vm.param;
         var symbol = vm.includeSymbols;
-        var notes = vm.notes;
         var length = parseInt(vm.passwordLength);
         var iterations = null;
         var salt = null;
         var number = 0;
 
         var mapping = metadata.findMapping(param);
-        if (mapping != null) {
+        if (mapping !== null) {
             param = mapping.to;
         }
 
@@ -449,7 +452,7 @@ angular.module('hash0.controllers', [])
             return;
         }
 
-        if (!config.oldVersions || config.oldVersions.length == 0) {
+        if (!config.oldVersions || config.oldVersions.length === 0) {
             $window.alert("Unexpected error. No older versions stored.");
             return;
         }
@@ -458,7 +461,7 @@ angular.module('hash0.controllers', [])
         config = config.oldVersions[config.oldVersions.length - 1];
 
         // Use cached config values
-        if (typeof(config.includeSymbols) != 'undefined') {
+        if (angular.isDefined(config.includeSymbols)) {
             symbol = config.includeSymbols;
         }
         if (config.passwordLength) {
@@ -499,7 +502,7 @@ angular.module('hash0.controllers', [])
         });
     };
 
-    vm.paramWatch = $scope.$watch('param', function(newVal, oldVal) {
+    vm.paramWatch = $scope.$watch('param', function(newVal) {
         vm.matches = [];
 
         var key = newVal;
@@ -513,9 +516,9 @@ angular.module('hash0.controllers', [])
                 vm.notes = config.notes;
             }
             if (config.passwordLength) {
-                vm.passwordLength = ''+config.passwordLength;
+                vm.passwordLength = '' + config.passwordLength;
             }
-            if (typeof(config.includeSymbols) != 'undefined') {
+            if (angular.isDefined(config.includeSymbols)) {
                 vm.toggleSymbols(config.includeSymbols);
             }
             vm.submitLabel = 'generate';
@@ -600,9 +603,9 @@ angular.module('hash0.controllers', [])
     vm.params = params.sort();
 
     vm.mappings = metadata.getAllMappings();
-    for (var i = 0; i < vm.mappings.length; i++) {
-        vm.mappings[i].label = vm.mappings[i].from + ' > ' + vm.mappings[i].to;
-    }
+    vm.mappings.forEach(function(mapping) {
+        mapping.label = mapping.from + ' > ' + mapping.to;
+    });
 
     vm.cancel = function() {
         $location.path('/generation');
@@ -628,7 +631,7 @@ angular.module('hash0.controllers', [])
         metadata.addMapping(vm.from, vm.to.param);
 
         var shouldContinueWithSalt = function(salt) {
-            if (salt.type != crypto.generatorTypes.csprng) {
+            if (salt.type !== crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
                 vm.loading = false;
@@ -679,7 +682,7 @@ angular.module('hash0.controllers', [])
         metadata.removeMapping(vm.selectedMapping.from, vm.selectedMapping.to);
 
         var shouldContinueWithSalt = function(salt) {
-            if (salt.type != crypto.generatorTypes.csprng) {
+            if (salt.type !== crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
                 vm.removeLoading = false;
@@ -756,7 +759,7 @@ angular.module('hash0.controllers', [])
         metadata.removeConfig(vm.selectedParam.param);
 
         var shouldContinueWithSalt = function(salt) {
-            if (salt.type != crypto.generatorTypes.csprng) {
+            if (salt.type !== crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
                 vm.loading = false;
@@ -804,7 +807,7 @@ angular.module('hash0.controllers', [])
             salt: salt.salt,
             iterations: iterations
         }, function(password) {
-            if (password.iterations != iterations) {
+            if (password.iterations !== iterations) {
                 $window.alert('Something is wrong');
             }
 

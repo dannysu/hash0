@@ -31,6 +31,7 @@
       "quotes": "single",
       "strict": [2, "global"],
       "global-strict": 0,
+      "no-multi-str": 0,
       "angular/ng_di": [2, "array"]
     }
   }

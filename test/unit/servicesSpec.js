@@ -14,10 +14,9 @@ describe('service', function() {
 
     beforeEach(function() {
         module('hash0.services');
-        var storage = {};
 
         module(function($provide) {
-            $provide.value('$window', mockWindow);
+            $provide.value('$window', mockWindow); //eslint-disable-line angular/ng_di
         });
     });
 
@@ -88,7 +87,7 @@ describe('service', function() {
                 metadata.addMapping('from1', 'to1');
                 metadata.addMapping('from2', 'to2');
             }));
-            
+
             it('should return all mappings', inject(function(metadata) {
                 var mappings = metadata.getAllMappings();
                 expect(mappings.length).toBe(2);
@@ -185,7 +184,7 @@ describe('service', function() {
                     notes: 'note to self'
                 });
             }));
-            
+
             it('should return all params', inject(function(metadata) {
                 var params = metadata.getAllParams();
                 expect(params.length).toBe(2);
@@ -214,7 +213,7 @@ describe('service', function() {
                     notes: 'note to self'
                 });
             }));
-            
+
             it('should return all configs with partial match on param', inject(function(metadata) {
                 var configs = metadata.findConfigs('ram');
                 expect(configs.length).toBe(2);
@@ -228,7 +227,7 @@ describe('service', function() {
         });
 
         it('generates secure salt if window.crypto.getRandomValues available', inject(function(crypto) {
-            sjcl.random = new sjcl.prng(6);
+            sjcl.random = new sjcl.prng(6); //eslint-disable-line new-cap
 
             var ab = new Uint32Array(32);
             for (var i = 0; i < ab.length; i++) {
@@ -244,9 +243,9 @@ describe('service', function() {
         }));
 
         it("generate salt based on user random input if window.crypto.getRandomValues isn't available", inject(function(crypto) {
-            sjcl.random = new sjcl.prng(6);
+            sjcl.random = new sjcl.prng(6); //eslint-disable-line new-cap
 
-            var userPrompt = function(prompt) {
+            var userPrompt = function() {
                 return "fkldsajfl;kdsajfkl;djsa";
             };
 
@@ -255,7 +254,7 @@ describe('service', function() {
         }));
 
         it("generate salt based on Math.random as last resort", inject(function(crypto) {
-            sjcl.random = new sjcl.prng(6);
+            sjcl.random = new sjcl.prng(6); //eslint-disable-line new-cap
 
             var salt = crypto.generateSalt();
             expect(salt.type).toBe(crypto.generatorTypes.insecure);
@@ -265,7 +264,7 @@ describe('service', function() {
             it('should fail password generation if master password not set', inject(function(crypto, $injector) {
                 var $timeout = $injector.get('$timeout');
 
-                sjcl.random = new sjcl.prng(6);
+                sjcl.random = new sjcl.prng(6); //eslint-disable-line new-cap
 
                 var password;
 
@@ -277,7 +276,7 @@ describe('service', function() {
                 $timeout.flush();
 
                 waitsFor(function() {
-                    if (typeof(password) == 'undefined') {
+                    if (typeof password === 'undefined') {
                         return false;
                     }
                     return true;
@@ -308,7 +307,7 @@ describe('service', function() {
                 $timeout.flush();
 
                 waitsFor(function() {
-                    if (typeof(password) == 'undefined') {
+                    if (typeof password === 'undefined') {
                         return false;
                     }
                     return true;
@@ -325,7 +324,7 @@ describe('service', function() {
             it('should fail password generation if master password not set', inject(function(crypto, $injector) {
                 var $timeout = $injector.get('$timeout');
 
-                sjcl.random = new sjcl.prng(6);
+                sjcl.random = new sjcl.prng(6); //eslint-disable-line new-cap
 
                 var password;
 
@@ -336,7 +335,7 @@ describe('service', function() {
                 $timeout.flush();
 
                 waitsFor(function() {
-                    if (typeof(password) == 'undefined') {
+                    if (typeof password === 'undefined') {
                         return false;
                     }
                     return true;
@@ -366,7 +365,7 @@ describe('service', function() {
                 $timeout.flush();
 
                 waitsFor(function() {
-                    if (typeof(password) == 'undefined') {
+                    if (typeof password === 'undefined') {
                         return false;
                     }
                     return true;
@@ -392,7 +391,7 @@ describe('service', function() {
             });
 
             waitsFor(function() {
-                return (typeof(error) != 'undefined');
+                return (typeof error !== 'undefined');
             }, 5000);
 
             expect(error).toBe(null);
@@ -413,7 +412,7 @@ describe('service', function() {
             $httpBackend.flush();
 
             waitsFor(function() {
-                return (typeof(error) != 'undefined');
+                return (typeof error !== 'undefined');
             }, 5000);
 
             expect(error).toBe(null);
@@ -440,7 +439,7 @@ describe('service', function() {
 
             crypto.setMasterPassword('test');
 
-            var shouldContinueWithSalt = function(salt) {
+            var shouldContinueWithSalt = function() {
                 return true;
             };
 
@@ -453,13 +452,13 @@ describe('service', function() {
             $httpBackend.flush();
 
             waitsFor(function() {
-                return (typeof(error) != 'undefined');
+                return (typeof error !== 'undefined');
             }, 5000);
 
             expect(error).toBe(null);
         }));
 
-        it('download should succeed', inject(function($injector, $httpBackend, sync, metadata, crypto) {
+        it('download should succeed', inject(function($injector, $httpBackend, sync, metadata) {
             var $timeout = $injector.get('$timeout');
 
             var url = 'https://hash0-test.appspot.com/' + salt.salt;
@@ -489,7 +488,7 @@ describe('service', function() {
             $httpBackend.flush();
 
             waitsFor(function() {
-                return (typeof(error) != 'undefined');
+                return (typeof error !== 'undefined');
             }, 5000);
 
             expect(error).toBe(null);
