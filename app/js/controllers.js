@@ -502,7 +502,9 @@ angular.module('hash0.controllers', [])
         });
     };
 
-    vm.paramWatch = $scope.$watch('param', function(newVal) {
+    vm.paramWatch = $scope.$watch(function() {
+        return vm.param;
+    }, function(newVal) {
         vm.matches = [];
 
         var key = newVal;
