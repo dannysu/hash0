@@ -7,7 +7,7 @@
 // In this case it is a simple value service.
 angular.module('hash0.services', [])
 .value('version', '2.1.2')
-.value('version_num', 1)
+.value('versionNum', 1)
 
 /*
  * Metadata service - local cache of metadata
@@ -57,13 +57,13 @@ angular.module('hash0.services', [])
         });
     };
 
-    Metadata.prototype.findConfig = function(param, partial_match) {
+    Metadata.prototype.findConfig = function(param, partialMatch) {
         for (var i = 0; i < this.configs.length; i++) {
             if (this.configs[i].param == param) {
                 return this.configs[i];
             }
 
-            if (partial_match && this.configs[i].param.indexOf(param) >= 0) {
+            if (partialMatch && this.configs[i].param.indexOf(param) >= 0) {
                 return this.configs[i];
             }
         }
@@ -213,12 +213,12 @@ angular.module('hash0.services', [])
 /*
  * Synchronization service - upload or download metadata to provided storage URL
  */
-.factory('sync', ['$window', '$http', 'metadata', 'crypto', 'version', 'version_num', function($window, $http, metadata, crypto, version, version_num) {
+.factory('sync', ['$window', '$http', 'metadata', 'crypto', 'version', 'versionNum', function($window, $http, metadata, crypto, version, versionNum) {
     function Synchronization() {
     }
 
-    var aes_key_size = 256;
-    var aes_tag_size = 128;
+    var aesKeySize = 256;
+    var aesTagSize = 128;
 
     Synchronization.prototype.upload = function(forceUpdate, shouldContinueWithSalt, callback) {
 
@@ -253,12 +253,12 @@ angular.module('hash0.services', [])
             }
 
             // Encrypt using AES 256
-            var encrypt_params = {
-                ks: aes_key_size,
-                ts: aes_tag_size
+            var encryptParams = {
+                ks: aesKeySize,
+                ts: aesTagSize
             };
 
-            var encrypted = sjcl.encrypt(password.password, data, encrypt_params);
+            var encrypted = sjcl.encrypt(password.password, data, encryptParams);
             encrypted = JSON.parse(encrypted);
 
             // Store the salt used and # of iterations used
@@ -267,7 +267,7 @@ angular.module('hash0.services', [])
             encrypted.hash0.salt = salt;
             encrypted.hash0.iterations = password.iterations;
             encrypted.hash0.version = version;
-            encrypted.hash0.version_num = version_num;
+            encrypted.hash0.versionNum = versionNum;
 
             $http.post(metadata.getStorageUrl(), JSON.stringify(encrypted)).
                 success(function(data, status, headers, config) {
@@ -391,7 +391,7 @@ angular.module('hash0.services', [])
     /*
      * generateSalt
      */
-    Crypto.prototype.generateSalt = function(user_prompt) {
+    Crypto.prototype.generateSalt = function(userPrompt) {
         var words = null;
         var sigBytes = 256/8;
         var generatorType = null;
@@ -409,10 +409,10 @@ angular.module('hash0.services', [])
 
         // Otherwise, prompt user to randomly type a whole bunch of characters
         if (words === null) {
-            if (user_prompt) {
+            if (userPrompt) {
                 // Keep on adding entropy until there's enough random data
                 while (!sjcl.random.isReady(10)) {
-                    var randomTyping = user_prompt();
+                    var randomTyping = userPrompt();
                     if (randomTyping === null) {
                         break;
                     }

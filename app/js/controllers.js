@@ -647,20 +647,20 @@ angular.module('hash0.controllers', [])
 
     $scope.remove = function() {
         if (!$scope.selectedMapping) {
-            $scope.remove_loading = false;
-            $scope.remove_error = true;
-            $scope.remove_errorMessage = 'Please select a mapping.';
+            $scope.removeLoading = false;
+            $scope.removeError = true;
+            $scope.removeErrorMessage = 'Please select a mapping.';
             return;
         }
 
         $scope.confirming = true;
-        $scope.remove_error = false;
+        $scope.removeError = false;
     };
 
     $scope.confirmRemove = function() {
         $scope.confirming = false;
-        $scope.remove_loading = true;
-        $scope.remove_error = false;
+        $scope.removeLoading = true;
+        $scope.removeError = false;
 
         $timeout(function() {
             $scope.removeInternal();
@@ -674,9 +674,9 @@ angular.module('hash0.controllers', [])
             if (salt.type != crypto.generatorTypes.csprng) {
                 var message = "Couldn't get a secure random number generator";
                 $window.alert(message);
-                $scope.remove_loading = false;
-                $scope.remove_error = true;
-                $scope.remove_errorMessage = message;
+                $scope.removeLoading = false;
+                $scope.removeError = true;
+                $scope.removeErrorMessage = message;
                 return false;
             }
             return true;
@@ -684,13 +684,13 @@ angular.module('hash0.controllers', [])
 
         sync.upload(true, shouldContinueWithSalt, function(err) {
             if (err) {
-                $scope.remove_loading = false;
-                $scope.remove_error = true;
-                $scope.remove_errorMessage = "Failed to upload metadata.";
+                $scope.removeLoading = false;
+                $scope.removeError = true;
+                $scope.removeErrorMessage = "Failed to upload metadata.";
             }
             else {
-                $scope.remove_loading = false;
-                $scope.remove_error = false;
+                $scope.removeLoading = false;
+                $scope.removeError = false;
                 $location.path('/generation');
             }
         });
@@ -721,7 +721,7 @@ angular.module('hash0.controllers', [])
     }
     $scope.params = params.sort();
     if ($scope.params.length > 0) {
-        $scope.selected_param = $scope.params[0];
+        $scope.selectedParam = $scope.params[0];
     }
 
     $scope.cancel = function() {
@@ -743,7 +743,7 @@ angular.module('hash0.controllers', [])
     };
 
     $scope.removeInternal = function() {
-        metadata.removeConfig($scope.selected_param.param);
+        metadata.removeConfig($scope.selectedParam.param);
 
         var shouldContinueWithSalt = function(salt) {
             if (salt.type != crypto.generatorTypes.csprng) {

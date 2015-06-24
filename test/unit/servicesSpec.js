@@ -27,9 +27,9 @@ describe('service', function() {
         }));
     });
 
-    describe('version_num', function() {
-        it('should return current version_num', inject(function(version_num) {
-            expect(version_num).toEqual(1);
+    describe('versionNum', function() {
+        it('should return current versionNum', inject(function(versionNum) {
+            expect(versionNum).toEqual(1);
         }));
     });
 
@@ -246,11 +246,11 @@ describe('service', function() {
         it("generate salt based on user random input if window.crypto.getRandomValues isn't available", inject(function(crypto) {
             sjcl.random = new sjcl.prng(6);
 
-            var user_prompt = function(prompt) {
+            var userPrompt = function(prompt) {
                 return "fkldsajfl;kdsajfkl;djsa";
             };
 
-            var salt = crypto.generateSalt(user_prompt);
+            var salt = crypto.generateSalt(userPrompt);
             expect(salt.type).toBe(crypto.generatorTypes.user);
         }));
 
