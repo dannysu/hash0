@@ -154,6 +154,7 @@ angular.module('hash0.controllers', [])
     vm.param = '';
     vm.originalParam = '';
     vm.notes = '';
+    vm.username = '';
     vm.result = '';
 
     vm.params = metadata.getAllParams();
@@ -263,6 +264,7 @@ angular.module('hash0.controllers', [])
         var param = vm.param;
         var symbol = vm.includeSymbols;
         var notes = vm.notes;
+        var username = vm.username;
         var length = parseInt(vm.passwordLength);
         var iterations = null;
         var salt = null;
@@ -387,6 +389,7 @@ angular.module('hash0.controllers', [])
                     includeSymbols: password.includeSymbols,
                     passwordLength: password.password.length,
                     notes: notes,
+                    username: username,
                     iterations: password.iterations,
                     number: number
                 });
@@ -517,6 +520,9 @@ angular.module('hash0.controllers', [])
             if (config.notes) {
                 vm.notes = config.notes;
             }
+            if (config.username) {
+                vm.username = config.username;
+            }
             if (config.passwordLength) {
                 vm.passwordLength = '' + config.passwordLength;
             }
@@ -531,6 +537,7 @@ angular.module('hash0.controllers', [])
                 vm.matches = metadata.findConfigs(key);
             }
             vm.notes = '';
+            vm.username = '';
             vm.passwordLength = '30';
             vm.submitLabel = 'create';
             vm.toggleNewPassword(true);

@@ -47,6 +47,11 @@
         <div class="ui-collapsible" data-ng-class="{'ui-collapsible-collapsed': generation.configCollapsed}">
             <div class="ui-collapsible-content" data-ng-class="{'ui-collapsible-content-collapsed': generation.configCollapsed}">
                 <div class="ui-field-contain ui-body ui-br">
+                    <label for="username" class="ui-input-text">Username:</label>
+                    <input type="text" name="username" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.username"/>
+                </div>
+
+                <div class="ui-field-contain ui-body ui-br">
                     <label for="notes" class="ui-input-text">Notes:</label>
                     <textarea type="text" name="notes" value="" autocorrect="off" autocapitalize="off" class="ui-input-text ui-body-b ui-corner-all ui-shadow-inset" metro-text-field="" data-ng-model="generation.notes">
                     </textarea>

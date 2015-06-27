@@ -145,6 +145,7 @@ angular.module('hash0.services', [])
                 'includeSymbols': existingConfig.includeSymbols,
                 'passwordLength': existingConfig.passwordLength,
                 'notes': existingConfig.notes,
+                'username': existingConfig.username,
                 'iterations': existingConfig.iterations,
                 'number': existingConfig.number
             };
@@ -164,6 +165,7 @@ angular.module('hash0.services', [])
             'includeSymbols': options.includeSymbols,
             'passwordLength': options.passwordLength,
             'notes': options.notes,
+            'username': options.username,
             'iterations': options.iterations
         };
         newConfig.number = options.number || 0;
@@ -176,6 +178,7 @@ angular.module('hash0.services', [])
                 existingConfig.includeSymbols === newConfig.includeSymbols &&
                 existingConfig.passwordLength === newConfig.passwordLength &&
                 existingConfig.notes === newConfig.notes &&
+                existingConfig.username === newConfig.username &&
                 existingConfig.iterations === newConfig.iterations &&
                 existingConfig.number === newConfig.number) {
 
