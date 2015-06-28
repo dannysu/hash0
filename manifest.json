@@ -1,6 +1,6 @@
 {
   "name": "hash0",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "manifest_version": 2,
   "description": "Synchronizable PBKDF2 based password generator",
   "browser_action": {
