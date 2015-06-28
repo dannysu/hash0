@@ -379,7 +379,10 @@ angular.module('hash0.controllers', [])
                     });
                 }
                 else if ($window.addon) {
-                    $window.addon.port.emit("password", code);
+                    $window.addon.port.emit("login", {
+                        username: username,
+                        password: password.password
+                    });
                 }
 
                 // Update in-memory config
