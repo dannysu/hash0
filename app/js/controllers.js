@@ -360,32 +360,22 @@ angular.module('hash0.controllers', [])
                 vm.configCollapsed = true;
                 vm.resultCollapsed = false;
 
-                var escapedParam = vm.originalParam.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
-                var escapedPassword = password.password.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '\\\"');
-                var code = "                                                  \
-                    var url = window.location.href;                           \
-                    var domain = url.match(/:\\/\\/(.[^\\/]+)/);              \
-                    if (domain !== null) {                                    \
-                        domain = domain[1];                                   \
-                    }                                                         \
-                    if (domain == '" + escapedParam + "') {                   \
-                        var inputs = document.getElementsByTagName('input');  \
-                        var password = '" + escapedPassword + "';             \
-                        for (var i = 0; i < inputs.length; i++) {             \
-                            if (inputs[i].type.toLowerCase() == 'password') { \
-                                inputs[i].value = password;                   \
-                            }                                                 \
-                        }                                                     \
-                    }                                                         \
-                ";
-
+                // Insert password directly into password field
                 if ($window.chrome && $window.chrome.tabs) {
-                    // Insert password directly into password field for Google Chrome
-                    $window.chrome.tabs.executeScript({
-                        code: code
+                    // Google Chrome
+                    $window.chrome.tabs.executeScript({ file: 'app/login_helper.js' }, function() {
+                        $window.chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                            if (tabs && tabs.length > 0) {
+                                $window.chrome.tabs.sendMessage(tabs[0].id, {
+                                    username: username,
+                                    password: password.password
+                                });
+                            }
+                        });
                     });
                 }
                 else if ($window.addon) {
+                    // Firefox
                     $window.addon.port.emit("login", {
                         username: username,
                         password: password.password
