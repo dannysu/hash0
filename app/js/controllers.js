@@ -105,7 +105,7 @@ angular.module('hash0.controllers', [])
         }
     };
 }])
-.controller('UnlockController', ['$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', function($location, $timeout, crypto, sync, metadata, $window) {
+.controller('UnlockController', ['$location', '$timeout', 'crypto', 'sync', 'metadata', '$window', 'versionNum', function($location, $timeout, crypto, sync, metadata, $window, versionNum) {
     var vm = this;
 
     vm.masterPassword = '';
@@ -141,9 +141,16 @@ angular.module('hash0.controllers', [])
                 vm.errorMessage = "Failed to download metadata. Perhaps you typed in the wrong password?";
             }
             else {
-                vm.loading = false;
-                vm.error = false;
-                $location.path('/generation');
+                if (versionNum < metadata.versionNum) {
+                    vm.loading = false;
+                    vm.error = true;
+                    vm.errorMessage = "Can't use an old version of hash0 with data created with newer version";
+                }
+                else {
+                    vm.loading = false;
+                    vm.error = false;
+                    $location.path('/generation');
+                }
             }
         });
     };

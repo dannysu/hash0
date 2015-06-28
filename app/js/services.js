@@ -6,8 +6,8 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 angular.module('hash0.services', [])
-.value('version', '2.1.2')
-.value('versionNum', 1)
+.value('version', '2.1.3')
+.value('versionNum', 2)
 
 /*
  * Metadata service - local cache of metadata
@@ -19,6 +19,7 @@ angular.module('hash0.services', [])
         this.configs = [];
         this.mappings = [];
         this.dirty = false;
+        this.versionNum = 0;
     }
 
     Metadata.prototype.setStorageUrl = function(value) {
@@ -94,6 +95,7 @@ angular.module('hash0.services', [])
 
         storage.configs = angular.toJson(this.configs);
         storage.mappings = angular.toJson(this.mappings);
+        storage.versionNum = this.versionNum;
     };
 
     Metadata.prototype.replaceData = function(configs, mappings) {
@@ -292,6 +294,7 @@ angular.module('hash0.services', [])
         if (encrypted.hash0) {
             var salt = encrypted.hash0.salt;
             var iterations = encrypted.hash0.iterations;
+            var metadataVersionNum = encrypted.hash0.versionNum;
             delete encrypted.hash0;
 
             crypto.generatePassword({
@@ -307,6 +310,7 @@ angular.module('hash0.services', [])
                     var decrypted = sjcl.decrypt(password.password, angular.toJson(encrypted));
 
                     var json = angular.fromJson(decrypted);
+                    json.versionNum = metadataVersionNum;
 
                     return callback(null, json);
                 }
@@ -339,6 +343,7 @@ angular.module('hash0.services', [])
                         }
 
                         metadata.replaceData(json.configs, json.mappings);
+                        metadata.versionNum = json.versionNum;
 
                         return callback(null);
                     });
