@@ -165,7 +165,7 @@
         }
     };
 
-    if (chrome && chrome.runtime) {
+    if (typeof chrome != 'undefined' && chrome.runtime) {
         // Google Chrome
         chrome.runtime.onMessage.addListener(function(message) {
             var username = message.username;
@@ -175,7 +175,7 @@
             injectUsername(username);
         });
     }
-    else if (self && self.port) {
+    else if (typeof self != 'undefined' && self.port) {
         // Firefox
         self.port.on("username", function(username) {
             injectUsername(username);
