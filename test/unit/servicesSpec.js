@@ -22,13 +22,13 @@ describe('service', function() {
 
     describe('version', function() {
         it('should return current version', inject(function(version) {
-            expect(version).toEqual('2.1.2');
+            expect(version).toEqual('2.1.3');
         }));
     });
 
     describe('versionNum', function() {
         it('should return current versionNum', inject(function(versionNum) {
-            expect(versionNum).toEqual(1);
+            expect(versionNum).toEqual(2);
         }));
     });
 

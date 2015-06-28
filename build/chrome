@@ -9,8 +9,6 @@ pushd "$BASEDIR"
 rm -rf "$TMPDIR"
 mkdir -p "$TMPDIR/chrome"
 
-bower install
-cp -r "$BASEDIR/bower_components" "$TMPDIR/chrome/bower_components"
 cp -r "$BASEDIR/app" "$TMPDIR/chrome/app"
 cp -r "$BASEDIR/icons" "$TMPDIR/chrome/"
 rm -rf "$TMPDIR/chrome/app/dependencies/sjcl/test"
