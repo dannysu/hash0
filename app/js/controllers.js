@@ -353,10 +353,10 @@ angular.module('hash0.controllers', [])
             param: param,
             number: number,
             salt: salt
-        }, function(password) {
+       }, function(generationResult) {
 
-            if (password) {
-                vm.result = password.password;
+            if (generationResult) {
+                vm.result = generationResult.password;
                 vm.configCollapsed = true;
                 vm.resultCollapsed = false;
 
@@ -368,7 +368,7 @@ angular.module('hash0.controllers', [])
                             if (tabs && tabs.length > 0) {
                                 $window.chrome.tabs.sendMessage(tabs[0].id, {
                                     username: username,
-                                    password: password.password
+                                    password: generationResult.password
                                 });
                             }
                         });
@@ -378,7 +378,7 @@ angular.module('hash0.controllers', [])
                     // Firefox
                     $window.addon.port.emit("login", {
                         username: username,
-                        password: password.password
+                        password: generationResult.password
                     });
                 }
 
@@ -386,11 +386,11 @@ angular.module('hash0.controllers', [])
                 metadata.addConfig({
                     param: param,
                     salt: salt,
-                    includeSymbols: password.includeSymbols,
-                    passwordLength: password.password.length,
+                    includeSymbols: generationResult.includeSymbols,
+                    passwordLength: generationResult.password.length,
                     notes: notes,
                     username: username,
-                    iterations: password.iterations,
+                    iterations: generationResult.iterations,
                     number: number
                 });
 
