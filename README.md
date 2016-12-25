@@ -1,3 +1,5 @@
+**NOTE:** No longer maintained
+
 # Motivation
 
 I'm interested in using password generators such as [hashapass][6],
