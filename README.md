@@ -65,6 +65,8 @@ Cons:
 
 # Usage
 
+**NOTE:** These are no longer maintained
+
 Google Chrome:
 
 - [Chrome extension][11]
@@ -72,13 +74,6 @@ Google Chrome:
 Firefox:
 
 - [Firefox addon][10] - [source][4]
-
-Web:
-
-- Ideally you should use Hash0 with either the Chrome extension or the Firefox
-  addon. Doing so ensures that the files are not tampered with.
-- Otherwise, knowing the risk you can still visit
-  [https://hash0.pw][3] to access it. It delivers the files to you via HTTPS.
 
   [1]: http://PasswordMaker.org
   [2]: http://code.google.com/p/crypto-js/
